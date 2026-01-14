@@ -1,0 +1,19 @@
+.image-section {
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  img {
+    transition: opacity 1s ease-in-out;
+  }
+
+  @media (max-width: 1028px) {
+    height: 85vh;
+    padding: 1rem;
+  }
+}

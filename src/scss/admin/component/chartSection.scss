@@ -1,0 +1,24 @@
+.chart-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  width: 50%;
+  margin-bottom: 1rem;
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    h3 {
+      font-size: 18px;
+      // 700;
+    }
+
+    span {
+      font-size: 14px;
+      color: #888;
+    }
+  }
+}

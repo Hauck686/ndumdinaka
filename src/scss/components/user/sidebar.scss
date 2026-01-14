@@ -1,0 +1,127 @@
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px); /* adds glassy blur */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+  z-index: 1999;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Sidebar */
+.user-sidebar {
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+  background: #fff;
+  border-radius: 0 12px 12px 0; /* rounded right edge */
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.12);
+  position: fixed;
+  top: 0;
+  left: -340px; /* fully hidden */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* snappy animation */
+  z-index: 2000;
+
+  &.open {
+    left: 0; /* slide in */
+  }
+}
+
+/* Sidebar Header */
+.user-sidebar__header {
+  display: flex;
+  align-items: center;
+  padding: 20px 18px;
+  gap: 10px;
+  border-bottom: 1px solid #f0f0f0;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: #555;
+  }
+}
+
+.user-sidebar__email {
+  font-size: 14px;
+  // 600;
+  color: #222;
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 10px 0;
+}
+
+/* Links */
+.user-sidebar__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 12px 18px;
+
+    a,
+    button {
+      width: 100%;
+      text-align: left;
+      display: block;
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-size: 15px;
+      // 500;
+      color: #333;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.25s ease;
+
+      &:hover {
+        background: #f8f9fa;
+        color: #000;
+      }
+    }
+
+    /* active state */
+    a.active {
+      background: #eef4ff;
+      color: #0056d2;
+      // 600;
+    }
+  }
+}
+
+/* Footer (sticks at bottom) */
+.user-sidebar__footer {
+  margin-top: auto;
+  padding: 10px 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Logout button */
+.logout-btn {
+  color: #e63946 !important;
+  font-weight: 700;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: #fff1f2;
+    color: #b91c1c !important;
+  }
+}

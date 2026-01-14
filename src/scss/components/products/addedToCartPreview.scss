@@ -1,0 +1,130 @@
+/* Simple bottom sheet preview styles - adjust to match your theme */
+.acp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 2000;
+}
+
+.acp-sheet {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.acp-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.acp-title {
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin: 0 0 12px 0;
+}
+
+.acp-body {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.acp-image img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.acp-details {
+  flex: 1;
+}
+
+.acp-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0 0 6px 0;
+}
+
+.acp-meta {
+  color: #333;
+  margin: 6px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.acp-price {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.acp-qty {
+  margin-top: 6px;
+  color: #666;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.acp-actions {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.acp-viewbag {
+  background: #000;
+  color: #fff;
+  padding: 14px;
+  border: none;
+  width: 100%;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acp-continue {
+  background: transparent;
+  color: #000;
+  padding: 10px;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (min-width: 640px) {
+  .acp-body {
+    align-items: center;
+  }
+  .acp-image img {
+    width: 140px;
+    height: 140px;
+  }
+  .acp-actions {
+    flex-direction: row;
+    gap: 16px;
+  }
+  .acp-viewbag {
+    width: auto;
+    padding: 14px 28px;
+  }
+  .acp-continue {
+    padding: 14px 28px;
+  }
+}

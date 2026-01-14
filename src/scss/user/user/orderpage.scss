@@ -1,0 +1,39 @@
+.orders-page {
+  padding-bottom: 100px;
+
+  .orders-title {
+    font-size: 22px;
+    // 700;
+    margin-bottom: 20px;
+    padding: 1rem;
+  }
+
+  .empty-orders {
+    text-align: center;
+    padding: 40px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background: #fafafa;
+
+    p {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .go-store-link {
+      color: #0070f3;
+      // 700;
+      text-decoration: underline;
+
+      &:hover {
+        color: #0056c1;
+      }
+    }
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+}

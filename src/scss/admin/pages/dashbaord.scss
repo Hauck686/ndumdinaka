@@ -1,0 +1,51 @@
+.dashboard {
+  padding: 24px;
+  background: #a3a3a3;
+
+  .content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+}
+
+.section-one {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h1 {
+    font-size: 24px;
+    // 700;
+    color: #111;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #4f46e5;
+      color: #fff;
+      cursor: pointer;
+
+      &:hover {
+        background: (#4f46e5, 5%);
+      }
+    }
+  }
+}
+
+.section-two {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

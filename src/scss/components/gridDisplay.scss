@@ -1,0 +1,33 @@
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-top: 10rem;
+  overflow: hidden;
+  scroll-behavior: smooth;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    //
+  }
+
+  @media (max-width: 1026px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.galleryGrid-two {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding-top: 10rem;
+  overflow: hidden;
+  scroll-behavior: smooth;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(1, 1fr);
+    //
+  }
+
+  @media (max-width: 1026px) {
+    grid-template-columns: 1fr;
+  }
+}

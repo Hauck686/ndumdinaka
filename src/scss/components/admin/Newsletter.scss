@@ -1,0 +1,137 @@
+/* ==================================== */
+/* === Newsletter Admin Styles === */
+/* ==================================== */
+
+.admin {
+  padding: 2rem 3rem;
+  background: #f9fafb;
+  min-height: 100vh;
+  color: #1e1e1e;
+
+  h1 {
+    font-size: 2rem;
+    // 700;
+    margin-bottom: 2rem;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: '📬';
+      font-size: 1.8rem;
+    }
+  }
+
+  /* === Table Container === */
+  .table-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 700px;
+
+    thead {
+      background: #f3f4f6;
+      text-align: left;
+
+      th {
+        padding: 1rem 1.5rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+        color: #374151;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: background 0.2s ease;
+
+        &:nth-child(even) {
+          background: #fafafa;
+        }
+
+        &:hover {
+          background: #f1f5f9;
+        }
+      }
+
+      td {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        vertical-align: middle;
+
+        &:first-child {
+          // 600;
+          color: #111827;
+        }
+      }
+    }
+  }
+
+  /* === Status Indicators (✅ ❌) === */
+  .status {
+    font-size: 1rem;
+
+    &.yes {
+      color: #10b981; // green
+    }
+
+    &.no {
+      color: #ef4444; // red
+    }
+  }
+
+  /* === Responsive === */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    table {
+      font-size: 0.9rem;
+      min-width: 100%;
+
+      thead {
+        display: none;
+      }
+
+      tbody tr {
+        display: block;
+        margin-bottom: 1.2rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-bottom: 1px solid #f3f4f6;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &::before {
+          content: attr(data-label);
+          // 600;
+          color: #6b7280;
+          text-transform: capitalize;
+        }
+      }
+    }
+  }
+}

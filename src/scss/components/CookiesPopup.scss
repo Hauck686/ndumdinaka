@@ -1,0 +1,79 @@
+.cookies-popup {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 15, 15, 0.95);
+  color: #fff;
+  padding: 1.2rem 1.5rem;
+  z-index: 9999;
+  animation: slideUp 0.4s ease-in-out;
+  display: flex;
+  justify-content: center;
+}
+
+.cookies-container {
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  p {
+    flex: 1 1 600px;
+    font-size: 0.9rem;
+    line-height: 1.4rem;
+    margin: 0;
+
+    a {
+      color: #fff;
+      text-decoration: underline;
+    }
+  }
+
+  .cookies-actions {
+    display: flex;
+    gap: 0.8rem;
+  }
+
+  button {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    // 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .accept-btn {
+    background: #fff;
+    color: #000;
+
+    &:hover {
+      background: #e5e5e5;
+    }
+  }
+
+  .decline-btn {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+
+    &:hover {
+      background: #fff;
+      color: #000;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

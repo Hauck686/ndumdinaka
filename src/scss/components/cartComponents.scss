@@ -1,0 +1,295 @@
+.cart-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+  .cart-count {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    padding: 2px 6px;
+    font-size: 12px;
+    // bold;
+    line-height: 1;
+
+    color: #fff;
+    background: #e60023;
+    border-radius: 50%;
+  }
+}
+
+/* Overlay */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+
+  display: flex;
+
+  .backdrop {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .cart-panel {
+    width: 420px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    background: #fff;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Header */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+
+  h2 {
+    font-size: 18px;
+    // 700;
+  }
+
+  .close-btn {
+    border: none;
+    background: none;
+
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+/* Empty Cart */
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+  text-align: center;
+
+  p {
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #444;
+  }
+
+  .continue-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    // 700;
+
+    border: 1px solid #000;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &:hover {
+      background: #000;
+      color: #fff;
+    }
+  }
+}
+
+/* Cart Items */
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 3rem;
+  padding: 16px;
+
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.cart-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+
+  .item-image {
+    img {
+      width: 100%;
+      height: auto;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+    }
+  }
+
+  .item-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    font-size: 14px;
+
+    .left {
+      display: flex;
+      flex-direction: column;
+
+      .item-qty-name {
+        // 700;
+        margin-bottom: 4px;
+      }
+
+      .item-color,
+      .item-size {
+        font-size: 13px;
+        color: #555;
+      }
+    }
+
+    .right {
+      // 700;
+    }
+  }
+
+  .delete-btn {
+    align-self: flex-end;
+    margin-top: 8px;
+
+    border: none;
+    background: none;
+
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover {
+      color: #000;
+    }
+  }
+}
+
+/* Footer */
+.cart-footer {
+  position: sticky;
+  bottom: 0;
+
+  padding: 16px;
+  background: #fff;
+  border-top: 1px solid #eee;
+
+  .subtotal {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    font-size: 15px;
+    // 700;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 14px;
+
+    border: none;
+    background: #000;
+    color: #fff;
+
+    font-size: 15px;
+    // 700;
+    cursor: pointer;
+
+    &:hover {
+      background: #333;
+    }
+  }
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  /* Stripe CardElement */
+  .StripeElement {
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus,
+    &.StripeElement--focus {
+      border-color: #000;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      background: #fff;
+    }
+
+    &.StripeElement--invalid {
+      border-color: #e60023;
+    }
+  }
+
+  .error {
+    color: #e60023;
+    font-size: 14px;
+    margin: -8px 0 8px 0;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    font-size: 15px;
+    // 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #333;
+    }
+
+    &:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+  }
+}

@@ -1,0 +1,144 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #fff;
+
+  .login-box {
+    line-height: 1rem;
+    background: #fff;
+    padding: 2.5rem;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08);
+    width: 480px;
+    max-width: 90%;
+    text-align: flex-start;
+
+    .logo {
+      font-family: 'Archivo Black', sans-serif;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .signin-title {
+      font-size: 20px;
+      // 700;
+      margin-bottom: 1rem;
+    }
+
+    .signin-subtitle {
+      text-align: left;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+      // 700;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s ease;
+
+      a {
+        text-decoration: none;
+        color: #fff;
+      }
+
+      &.btn-shop {
+        background: #5a3df2;
+        color: white;
+        margin-bottom: 1rem;
+
+        &:hover {
+          background: #482cd4;
+        }
+      }
+
+      &.btn-continue {
+        background: #000;
+        color: white;
+        margin-top: 1rem;
+
+        &:hover {
+          background: #333;
+        }
+      }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1rem 0;
+
+      span {
+        margin: 0 10px;
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #ddd;
+      }
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #ccc;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+
+      &:focus {
+        border-color: #000;
+        outline: none;
+      }
+    }
+
+    .links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 1.5rem;
+
+      a {
+        font-size: 12px;
+        color: #000;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// ✅ Mobile Responsiveness
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0; // remove outer padding
+
+    .login-box {
+      width: 100%;
+      max-width: 100%;
+      padding: 1.5rem;
+      box-shadow: none; // remove shadow
+      border-radius: 0; // remove rounded edges if any
+      display: flex;
+      flex-direction: column;
+      justify-content: center; // center contents vertically
+      text-align: left; // align texts to left for mobile
+    }
+  }
+}

@@ -1,0 +1,21 @@
+.floating-logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px;
+  border-radius: 50%;
+  z-index: 1000;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  h4 {
+    font-size: 50px;
+    width: 100%;
+  }
+  @media (max-width: 1053px) {
+    h4 {
+      font-size: 25px;
+      width: 266px;
+    }
+  }
+}

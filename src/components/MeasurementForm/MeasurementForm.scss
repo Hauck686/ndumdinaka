@@ -1,0 +1,258 @@
+/* Pure SCSS for MeasurementForm (components/MeasurementForm.scss) */
+
+$bg: #ffff;
+$muted: #000000;
+$text: #222222;
+$accent: #111111;
+$success: #000000;
+$panel: #fff;
+$radius: 12px;
+
+.mf-wrap {
+  position: relative;
+  min-height: 100vh;
+  background: $bg;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.mf-container {
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  background: $panel;
+  overflow: hidden;
+  align-self: center;
+  margin-top: 2rem;
+}
+
+p {
+  align-self: center;
+  font-size: 10px;
+}
+
+.mf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  padding: 11px -3px;
+  border-bottom: 0.5px solid #000000;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(255, 255, 255, 0.95)
+  );
+}
+
+.mf-left h1 {
+  margin: 0;
+  font-size: 18px;
+  color: $text;
+  font-weight: 700;
+}
+
+.mf-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: $muted;
+  font-weight: 800;
+}
+.mf-text {
+  font-size: 12px;
+  color: $muted;
+  text-transform: none;
+}
+
+.mf-right {
+  display: flex;
+  align-items: flex-end;
+  align-self: flex-end;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.mf-units {
+  background: #faf7f3;
+  border-radius: 999px;
+  padding: 4px;
+  border: 1px solid #f0ece7;
+  display: inline-flex;
+}
+.btn-unit {
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: $muted;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.btn-unit.on {
+  background: $accent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: $muted;
+  cursor: pointer;
+}
+
+/* Type selector */
+.mf-type-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 2px solid #000000;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 246, 243, 0.5),
+    rgba(255, 255, 255, 0.3)
+  );
+}
+.type-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #eee;
+  background: transparent;
+  color: $muted;
+  font-weight: 600;
+  cursor: pointer;
+}
+.type-btn.active {
+  border-color: $accent;
+  background: rgba(17, 17, 17, 0.04);
+  color: $accent;
+}
+
+/* Main */
+.mf-main {
+  padding: -1px 9px -2px;
+}
+
+/* Grid of fields */
+.mf-form {
+  width: 10%;
+}
+.mf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 36px;
+  padding-bottom: 12px;
+}
+
+/* Field style similar to provided screenshot */
+.mf-field {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.mf-label {
+  font-size: 10px;
+  color: $muted;
+  font-weight: 300;
+  width: 300px;
+}
+.mf-input {
+  outline: none;
+  background: transparent;
+  padding: 8px 0 6px;
+  font-size: 14px;
+  color: $text;
+  width: 50px;
+  border: 1px solid #000000;
+}
+.mf-underline {
+  height: 1px;
+}
+.mf-field:focus-within .mf-underline,
+.mf-input:focus + .mf-underline {
+  background: rgba(17, 17, 17, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Actions */
+.mf-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  width: 1000px;
+}
+.btn {
+  padding: 10px 14px;
+  // border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.btn.ghost {
+  background: transparent;
+  // border: 1px solid #efe9e0;
+  color: $muted;
+}
+.btn.primary {
+  background: $accent;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  padding: 1rem;
+  max-width: 400px;
+}
+.btn.save {
+  background: $success;
+  color: #fff;
+  // border: none;
+}
+
+/* Review */
+.mf-review {
+  margin-top: 18px;
+  // border-top: 1px dashed #f1ebe3;
+  padding-top: 16px;
+}
+.mf-review h2 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.mf-review-list {
+  max-height: 340px;
+  overflow: auto;
+  padding-right: 8px;
+}
+.mf-review-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px;
+  // border-bottom: 2px solid #000000;
+}
+.mf-r-label {
+  color: $muted;
+  font-size: 13px;
+}
+.mf-r-value {
+  color: $text;
+  font-weight: 700;
+}
+
+/* Responsiveness */
+@media (max-width: 880px) {
+  .mf-left h1 {
+    font-size: 15px;
+  }
+
+  .mf-grid {
+    font-size: small;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .mf-container {
+    max-width: 720px;
+  }
+}

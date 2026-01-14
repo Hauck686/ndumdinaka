@@ -1,0 +1,70 @@
+@use './utilies/variable';
+@use './utilies/base';
+
+// SECTIONS
+@use './user/sections/ImageSection';
+@use './user/user/homepage';
+@use './user/user/userProfile';
+@use './user/user/orderpage';
+
+// en
+@use './en/newsletter';
+
+//auth
+@use './auth/login';
+@use './auth/verifyCode';
+
+// admin
+@use './admin/admin';
+@use './admin/ProductPage';
+@use './admin/pages/dashbaord';
+
+// CONTEXT
+@use './context/notifications';
+@use './en/newsletterComp';
+
+// modal components
+@use './components/modalComponent/Cookies';
+@use './components/modalComponent/ShippingInfo';
+@use './components/footerContent';
+@use './components/policiesPage';
+
+// COMPONENTS
+@use './admin/component/dashboardnav';
+@use './admin/component/statscard';
+@use './admin/component/chartSection';
+@use './admin/component/featuredProducts';
+@use './admin/component/customerlist';
+@use './admin/component/productTable';
+@use './admin/component/orderTable';
+
+@use './components/products/OrdersPage';
+@use './components/products/addedToCartPreview';
+@use './components/header';
+@use './components/Modal';
+@use './components/footer';
+@use './components/floatingLogo';
+@use './components/gridDisplay';
+@use './components/authForm';
+@use './components/dropdown';
+@use './components/cartComponents';
+@use './components/user/userFooter';
+@use './components/user/dasboardheader';
+@use './components/user/userDropdown';
+@use './components/user/sidebar';
+@use './components/user/EditProfileNameModal';
+@use './components/user/EditAddressModal';
+@use './components/admin/Newsletter';
+
+@use './components/products/SingleProductShowcase';
+@use './components/products/doubleImageShowcase';
+@use './components/products/productDetails';
+@use './components/products/productCard';
+
+@use './components/loading';
+@use './components/NewsletterPopup';
+@use './components/CookiesPopup';
+@use './components/MeasurementStepper';
+
+@use './user/products/productDetailspage';
+@use './user/measurement';
