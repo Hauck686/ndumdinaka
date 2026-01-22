@@ -2,6 +2,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+@font-face {
+  font-family: 'Apercu';
+  src: url('/fonts/apercu_regular_pro.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Apercu';
+  src: url('/fonts/apercu_medium_pro.otf') format('opentype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Apercu';
+  src: url('/fonts/apercu_bold_pro.otf') format('opentype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Apercu';
+  src: url('/fonts/apercu_regular_italic_pro.otf') format('opentype');
+  font-style: italic;
+}
+
 .archivo-black-regular {
   font-family: 'Archivo Black', sans-serif;
   font-style: normal;
@@ -28,7 +54,7 @@
 }
 
 body {
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Apercu', system-ui, sans-serif;
   text-transform: uppercase;
   font-size: 16px;
   font-weight: 400;

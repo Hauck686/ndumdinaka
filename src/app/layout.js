@@ -1,3 +1,4 @@
+import { apercu } from '../../public/fonts/apercu'
 import RootClient from './RootClient'
 
 export const metadata = {
@@ -49,7 +50,7 @@ export const metadata = {
 
 export default function RootLayout ({ children }) {
   return (
-    <html lang='en'>
+    <html lang='en' className={apercu.variable}>
       <body>
         <RootClient>{children}</RootClient>
       </body>

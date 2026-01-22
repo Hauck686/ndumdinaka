@@ -67,6 +67,15 @@ export default function MeasurementForm ({
   const [saving, setSaving] = useState(false)
 
   const fields = MEASUREMENT_GUIDES[activeType] || []
+  const checkLogin = () => {
+    const userId = localStorage.getItem('userId')
+    if (!userId) {
+      showNotification('⚠️ Please log in to continue', 'warning')
+      router.push('/auth/login')
+      return false
+    }
+    return true
+  }
 
   useEffect(() => {
     // initialize fields if empty (keep existing values)
@@ -120,6 +129,9 @@ export default function MeasurementForm ({
 
   async function saveMeasurement () {
     setSaving(true)
+    if (!checkLogin()) {
+      router.push('/login')
+    }
 
     if (!areAllFieldsFilled()) {
       showNotification(
@@ -309,9 +321,9 @@ export default function MeasurementForm ({
                 </div>
 
                 <div className='mf-actions'>
-                  <p type='submit' className='btn primary'>
+                  <button type='submit' className='btn primary'>
                     Review to proceed
-                  </p>
+                  </button>
                 </div>
               </form>
             )}
@@ -335,14 +347,16 @@ export default function MeasurementForm ({
                 <div className='mf-actions'>
                   <button
                     type='button'
-                    className='btn ghost'
+                    className='btn primary'
                     onClick={() => setStep(1)}
                   >
                     Edit
                   </button>
+                </div>
+                <div className='mf-actions'>
                   <button
                     type='button'
-                    className='btn save'
+                    className='btn primary'
                     onClick={saveMeasurement}
                     disabled={saving}
                   >

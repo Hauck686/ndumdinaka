@@ -136,9 +136,7 @@ p {
 }
 
 /* Grid of fields */
-.mf-form {
-  width: 10%;
-}
+
 .mf-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -182,7 +180,7 @@ p {
   justify-content: space-between;
   gap: 12px;
   margin-top: 18px;
-  width: 1000px;
+  width: 100%;
 }
 .btn {
   padding: 10px 14px;
@@ -201,7 +199,7 @@ p {
   text-align: center;
   width: 100%;
   padding: 1rem;
-  max-width: 400px;
+  // max-width: 400px;
 }
 .btn.save {
   background: $success;
