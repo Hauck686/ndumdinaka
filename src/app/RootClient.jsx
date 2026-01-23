@@ -27,7 +27,8 @@ export default function RootClient ({ children }) {
     '/admin/user-measurement',
     '/admin/cookies',
     '/admin/newsletter-subscribers',
-    '/admin/sales'
+    '/admin/sales',
+    '/'
   ]
 
   const hideLayout = hiddenRoutes.includes(pathname)

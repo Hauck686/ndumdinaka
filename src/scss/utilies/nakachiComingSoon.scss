@@ -1,0 +1,372 @@
+// Variables
+$primary-color: #ffffff;
+$secondary-color: #e6e6e6;
+$dark-bg: #1f1f1f;
+$darker-bg: #000000;
+$text-primary: #f8fafc;
+$text-secondary: #cbd5e1;
+$accent-gold: #444444;
+
+// Mixins
+@mixin gradient-bg {
+  background: linear-gradient(135deg, $dark-bg 0%, $darker-bg 100%);
+}
+
+@mixin glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+// Main Container
+.coming-soon {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  @include gradient-bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(99, 102, 241, 0.1) 0%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  // Logo Section
+  &__logo {
+    margin-bottom: 3rem;
+    animation: fadeInDown 1s ease-out;
+  }
+
+  &__brand {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    background: linear-gradient(
+      135deg,
+      $primary-color,
+      $secondary-color,
+      $accent-gold
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  &__divider {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      $primary-color,
+      transparent
+    );
+    margin: 1.5rem auto;
+    border-radius: 2px;
+  }
+
+  // Main Content
+  &__main {
+    animation: fadeInUp 1s ease-out 0.2s backwards;
+  }
+
+  &__title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: $text-primary;
+    margin: 0 0 1rem;
+    font-weight: 700;
+  }
+
+  &__subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: $text-secondary;
+    margin: 0 0 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Countdown
+  &__countdown {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+  }
+
+  // Notify Section
+  &__notify {
+    margin-bottom: 3rem;
+  }
+
+  .notify {
+    &__title {
+      font-size: 1.25rem;
+      color: $text-primary;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    &__form {
+      display: flex;
+      gap: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    &__input {
+      flex: 1;
+      min-width: 250px;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+      color: $text-primary;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+
+      &::placeholder {
+        color: $text-secondary;
+      }
+
+      &:focus {
+        border-color: $primary-color;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      }
+    }
+
+    &__button {
+      padding: 1rem 2.5rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+      color: $darker-bg;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, $secondary-color, $primary-color);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      span {
+        position: relative;
+        z-index: 1;
+      }
+    }
+  }
+
+  // Social Links
+  &__social {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+
+  .social-link {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    @include glass-effect;
+    color: $text-secondary;
+    transition: all 0.3s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      transform: translateY(-4px);
+      color: $primary-color;
+      background: rgba(99, 102, 241, 0.1);
+      border-color: $primary-color;
+    }
+  }
+
+  // Footer
+  &__footer {
+    color: $text-secondary;
+    font-size: 0.875rem;
+    margin-top: 3rem;
+    opacity: 0.7;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  // Particles
+  &__particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: $primary-color;
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-up 10s infinite ease-in-out;
+
+    @for $i from 1 through 20 {
+      &:nth-child(#{$i}) {
+        left: random(100) * 1%;
+        animation-delay: random(5) * 1s;
+      }
+    }
+  }
+}
+
+// Countdown Item
+.countdown-item {
+  @include glass-effect;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: $primary-color;
+  }
+
+  &__value {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    color: $text-primary;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, $primary-color, $accent-gold);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+}
+
+// Animations
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) scale(1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .coming-soon {
+    &__countdown {
+      gap: 1rem;
+    }
+
+    .countdown-item {
+      min-width: 80px;
+      padding: 1rem 1.25rem;
+    }
+
+    .notify__form {
+      flex-direction: column;
+
+      .notify__input,
+      .notify__button {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  }
+}
