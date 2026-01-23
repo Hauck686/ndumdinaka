@@ -50,9 +50,7 @@ const ComingSoon = () => {
 
         <div className='coming-soon__main'>
           <h2 className='coming-soon__title'>
-            {
-              'Our website is under construction. Stay tuned for something extraordinary!'
-            }
+            {'Our website is under construction... !'}
           </h2>
 
           <div className='coming-soon__countdown'>
