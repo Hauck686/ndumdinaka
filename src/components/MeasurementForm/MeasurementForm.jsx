@@ -53,6 +53,7 @@ export default function MeasurementForm ({
 }) {
   const router = useRouter()
   const { showNotification } = useNotification()
+  const [triedSubmit, setTriedSubmit] = useState(false)
 
   // choose a sensible default type (fall back to the first guide if initialType isn't valid)
   const defaultType =
@@ -290,6 +291,7 @@ export default function MeasurementForm ({
                 className='mf-form'
                 onSubmit={e => {
                   e.preventDefault()
+                  setTriedSubmit(true)
 
                   if (!areAllFieldsFilled()) {
                     showNotification(
@@ -319,7 +321,11 @@ export default function MeasurementForm ({
                     </label>
                   ))}
                 </div>
-
+                {triedSubmit && !areAllFieldsFilled() && (
+                  <p className='mf-validation-msg'>
+                    Please complete all required measurements to proceed.
+                  </p>
+                )}
                 <div className='mf-actions'>
                   <button type='submit' className='btn primary'>
                     Review to proceed
@@ -360,7 +366,7 @@ export default function MeasurementForm ({
                     onClick={saveMeasurement}
                     disabled={saving}
                   >
-                    {saving ? 'Saving…' : 'Save & Return'}
+                    {saving ? 'Saving…' : 'Proceed'}
                   </button>
                 </div>
               </section>

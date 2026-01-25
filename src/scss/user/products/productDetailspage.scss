@@ -112,7 +112,7 @@
     padding: 1rem 0;
     font-size: 0.7rem;
     margin-top: -1rem;
-    text-transform: uppercase;
+    text-transform: capitalize;
     cursor: pointer;
     color: inherit;
     // font-weight: 700;
@@ -140,7 +140,7 @@
     padding: 1rem 0;
     font-size: 0.7rem;
     margin-top: -1rem;
-    text-transform: uppercase;
+    text-transform: capitalize;
     cursor: pointer;
   }
   .accordion-content {
@@ -177,7 +177,7 @@
   span {
     border: 1px solid #555;
     padding: 0.4rem 0.8rem;
-    text-transform: uppercase;
+    text-transform: capitalize;
     cursor: pointer;
     transition: all 0.3s ease;
 
@@ -198,7 +198,7 @@
     text-align: end;
     width: 100%;
     padding: 0.4rem -0.2rem;
-    text-transform: uppercase;
+    text-transform: capitalize;
     cursor: pointer;
     transition: all 0.3s ease;
     &.active,
@@ -219,7 +219,7 @@
   margin-top: -0.01rem;
   padding: 1rem 0;
   font-size: 0.9rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.1em;
   cursor: pointer;
   transition: 0.3s ease;
@@ -236,7 +236,7 @@
   margin-bottom: 0.1rem;
   padding: 1rem 0;
   font-size: 0.9rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.1em;
   cursor: pointer;
   transition: 0.3s ease;

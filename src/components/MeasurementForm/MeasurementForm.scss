@@ -206,6 +206,12 @@ p {
   color: #fff;
   // border: none;
 }
+.mf-validation-msg {
+  margin-top: 0.5rem;
+  color: #e74c3c; // or your warning color
+  font-size: 0.875rem;
+  text-align: center;
+}
 
 /* Review */
 .mf-review {

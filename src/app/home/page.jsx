@@ -13,12 +13,12 @@ export default function page () {
       <ImageSection
         images={[
           {
-            src: '/landing.png',
+            src: '/landing1.png',
             width: '80%',
             height: '80%'
           },
           {
-            src: '/landing.png',
+            src: '/landing1.png',
             width: '80%',
             height: '80%'
           }

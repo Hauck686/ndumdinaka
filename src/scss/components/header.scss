@@ -124,10 +124,11 @@
     justify-content: center;
   }
   .logo {
+    font-family: 'Montserrat', sans-serif !important;
     justify-content: center;
     margin-top: 0.5rem;
     a {
-      font-family: 'Apercu', system-ui, sans-serif;
+      font-family: 'Montserrat', sans-serif !important;
       text-decoration: none;
       font-size: 18px;
       font-weight: 700;

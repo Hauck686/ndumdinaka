@@ -143,7 +143,7 @@ export default function Footer () {
           title='Company'
           links={[
             {
-              label: 'COMPANY INFORMATION',
+              label: 'Company Information',
               subLinks: [
                 {
                   label: (
@@ -156,7 +156,7 @@ export default function Footer () {
               ]
             },
 
-            { label: 'IMPACT', href: '/auth/impact' }
+            { label: 'Impact', href: '/auth/impact' }
           ]}
           section='info'
           onLinkClick={handleLinkClick}
@@ -167,7 +167,7 @@ export default function Footer () {
         />
 
         <FooterSection
-          title='CUSTOMER CARE'
+          title='Customer care'
           links={[
             { label: 'Email: support@nakachi.com', href: '/auth/contact-us' },
             { label: 'Call: +1 123-456-7890', href: '/auth/faq' }

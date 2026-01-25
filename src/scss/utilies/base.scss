@@ -41,7 +41,7 @@
 .montserrat {
   font-family: 'Montserrat', sans-serif;
   font-optical-sizing: auto;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-style: normal;
 }
 
@@ -55,7 +55,7 @@
 
 body {
   font-family: 'Apercu', system-ui, sans-serif;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 16px;
   font-weight: 400;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -90,7 +90,6 @@ button {
   font-size: 14px;
 
   .goog-te-gadget {
-    // 👈 your Google Font
     color: #333;
   }
 

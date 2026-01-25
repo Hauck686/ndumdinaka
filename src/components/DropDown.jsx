@@ -32,7 +32,7 @@ export default function DropDown ({ onClose }) {
           children: [
             { label: 'Shirts', href: '/Products/category/Shirts' },
             {
-              label: 'JACKETS & BLOUSONS',
+              label: 'Jackets & Blousons',
               href: '/Products/category/Jackets%20%26%20Blousons'
             },
             {
