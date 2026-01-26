@@ -417,7 +417,7 @@ export default function ProductDetailsPage () {
   const addToCartLabel =
     isWallet && initials.trim() !== ''
       ? 'Validate And Add to Bag'
-      : 'Add INITIALS'
+      : 'Add Initials'
 
   return (
     <>
@@ -668,7 +668,7 @@ export default function ProductDetailsPage () {
             {/* Add to bag */}
             {!isWallet && (
               <button className='add-btn' onClick={handleAddToCart}>
-                {product.quantity <= 0 ? ' ADD TO CART' : 'ADD TO CART'}
+                {product.quantity <= 0 ? ' Add To Cart' : 'Add To Cart'}
               </button>
             )}
 
@@ -701,8 +701,12 @@ export default function ProductDetailsPage () {
                 onClick={() => toggleDropdown('description')}
               >
                 <span>
-                  <span>{product.name}</span>
-                  <span>{product.description}</span>
+                  <span style={{ textTransform: 'lowercase' }}>
+                    {product.name}
+                  </span>
+                  <span style={{ textTransform: 'lowercase' }}>
+                    {product.description}
+                  </span>
                 </span>
               </div>
             </div>
@@ -714,8 +718,10 @@ export default function ProductDetailsPage () {
                 onClick={() => toggleDropdown('info')}
               >
                 <span>
-                  <span>DETAILS</span>
-                  <span>{product.brand}</span>
+                  <span>Details</span>
+                  <span style={{ textTransform: 'lowercase' }}>
+                    {product.brand}
+                  </span>
                 </span>
               </div>
             </div>
@@ -726,7 +732,7 @@ export default function ProductDetailsPage () {
                 onClick={() => toggleDropdown('info')}
               >
                 <span>
-                  <span>DO you need help? </span>
+                  <span>Do you need help? </span>
                   <span>
                     Contact us 0000 000 0000 Or, Email Us
                     Support@nakachindumdi.com

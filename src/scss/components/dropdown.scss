@@ -54,6 +54,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2rem;
+  text-transform: capitalize;
 
   @media (min-width: 750px) {
     gap: 3rem;

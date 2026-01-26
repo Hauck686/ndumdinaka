@@ -27,7 +27,7 @@ export default function DropDown ({ onClose }) {
       title: '',
       items: [
         {
-          label: 'READY TO WEAR',
+          label: 'Ready To Wear',
           href: '#',
           children: [
             { label: 'Shirts', href: '/Products/category/Shirts' },
@@ -43,11 +43,11 @@ export default function DropDown ({ onClose }) {
           ]
         },
         {
-          label: 'BAGS & SMALL LEATHER GOODS',
+          label: 'Bags & Small Leather Goods',
           href: '/Products/category/Bags%20%26%20Small%20Leather%20Goods'
         },
-        { label: 'SHOES', href: '/Products/category/Shoes' },
-        { label: 'ACCESSORIES', href: '/Products/category/Accessories' }
+        { label: 'Shoes', href: '/Products/category/Shoes' },
+        { label: 'Accessories', href: '/Products/category/Accessories' }
       ]
     }
   ]

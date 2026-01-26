@@ -209,8 +209,9 @@ p {
 .mf-validation-msg {
   margin-top: 0.5rem;
   color: #e74c3c; // or your warning color
-  font-size: 0.875rem;
+  font-size: 0.6rem;
   text-align: center;
+  text-transform: none;
 }
 
 /* Review */

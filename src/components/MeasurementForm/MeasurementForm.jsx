@@ -321,16 +321,17 @@ export default function MeasurementForm ({
                     </label>
                   ))}
                 </div>
+
+                <div className='mf-actions'>
+                  <button type='submit' className='btn primary'>
+                    Review To Proceed
+                  </button>
+                </div>
                 {triedSubmit && !areAllFieldsFilled() && (
                   <p className='mf-validation-msg'>
                     Please complete all required measurements to proceed.
                   </p>
                 )}
-                <div className='mf-actions'>
-                  <button type='submit' className='btn primary'>
-                    Review to proceed
-                  </button>
-                </div>
               </form>
             )}
 

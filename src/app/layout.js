@@ -1,5 +1,12 @@
+import { Archivo_Black } from 'next/font/google'
 import { apercu } from '../../public/fonts/apercu'
 import RootClient from './RootClient'
+
+const archivoBlack = Archivo_Black({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-archivo-black'
+})
 
 export const metadata = {
   title: 'NAKACHI NDUMDI',
@@ -50,7 +57,7 @@ export const metadata = {
 
 export default function RootLayout ({ children }) {
   return (
-    <html lang='en' className={apercu.variable}>
+    <html lang='en' className={`${apercu.variable} ${archivoBlack.variable}`}>
       <body>
         <RootClient>{children}</RootClient>
       </body>

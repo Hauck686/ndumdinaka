@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import CartComponent from './products/CartComponent'
-import { Search, X, Menu } from 'lucide-react'
+import { Search, X, Menu, Handbag } from 'lucide-react'
 import SearchComponent from './SearchComponent'
 
 const navMenu = [
@@ -42,16 +42,20 @@ const navMenu = [
 ]
 
 export default function Header () {
-  const [open, setOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [openCart, setOpenCart] = useState(false)
+  // Only ONE state controls all open panels
+  const [activePanel, setActivePanel] = useState(null)
+  // null | 'menu' | 'cart' | 'search'
+
   const [dropdownOpen, setDropdownOpen] = useState(null)
   const [cartCount, setCartCount] = useState(0)
-
   const [token, setToken] = useState(null)
   const [mounted, setMounted] = useState(false)
 
-  // ✅ Mount check + token load
+  const togglePanel = panel => {
+    setActivePanel(prev => (prev === panel ? null : panel))
+  }
+
+  // Mount check + token load
   useEffect(() => {
     setMounted(true)
     if (typeof window !== 'undefined') {
@@ -59,46 +63,40 @@ export default function Header () {
     }
   }, [])
 
-  // ✅ Load cart count safely
+  // Load cart count
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const cart = JSON.parse(localStorage.getItem('cart')) || []
       setCartCount(cart.length)
     }
-  }, [openCart])
+  }, [activePanel])
 
-  // 🚨 Early return AFTER hooks
   if (!mounted) return null
 
   const accountMenu = [
-    { label: 'Search', href: null },
-    // { label: 'Subscribe', href: '/en/subscribe' },
+    { label: 'Search', action: () => togglePanel('search') },
     {
       label: token ? 'Profile' : 'Login',
       href: token ? '/user/user-profile' : '/auth/login'
     },
-    { label: 'Cart', href: null }
+    { label: 'Cart', action: () => togglePanel('cart') }
   ]
 
   return (
     <>
       <header>
         <nav className='site-header'>
-          {/* Mobile / Left navigation */}
+          {/* Left navigation */}
           <div className='nav-left'>
             <div
               className='hamburger-menu'
-              onClick={() => setOpen(prev => !prev)}
-              aria-label={open ? 'Close menu' : 'Open menu'}
+              onClick={() => togglePanel('menu')}
+              aria-label={activePanel === 'menu' ? 'Close menu' : 'Open menu'}
             >
-              {open ? (
+              {activePanel === 'menu' ? (
                 <X strokeWidth={2} size={19} />
               ) : (
-                // <Menu strokeWidth={2} size={19} />
-
-                <div>
-                  <Menu strokeWidth={1} size={19} />
-                </div>
+                <Menu strokeWidth={1} size={19} />
               )}
             </div>
 
@@ -135,18 +133,8 @@ export default function Header () {
             <ul>
               {accountMenu.map(item => (
                 <li key={item.label}>
-                  {item.label === 'Cart' ? (
-                    <span
-                      onClick={() => setOpenCart(!openCart)}
-                      className='cart-link'
-                    >
-                      {openCart ? `Close` : `Cart`}
-                    </span>
-                  ) : item.label === 'Search' ? (
-                    <span
-                      onClick={() => setIsSearchOpen(true)}
-                      className='search-link'
-                    >
+                  {item.action ? (
+                    <span onClick={item.action} className='nav-action'>
                       {item.label}
                     </span>
                   ) : (
@@ -158,53 +146,47 @@ export default function Header () {
 
             {/* Mobile icons */}
             <div className='mobile-icon'>
-              {isSearchOpen ? (
-                <div
-                  className='search-icon'
-                  onClick={() => setIsSearchOpen(false)}
-                >
+              {/* Search icon */}
+              <div
+                className='search-icon'
+                onClick={() => togglePanel('search')}
+              >
+                {activePanel === 'search' ? (
                   <X strokeWidth={1} size={19} />
-                </div>
-              ) : (
-                <div
-                  className='search-icon'
-                  onClick={() => setIsSearchOpen(true)}
-                >
+                ) : (
                   <Search strokeWidth={1} size={19} />
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* <div className='cartIcon'> */}
-              {openCart ? (
-                <div
-                  className='cartIcon'
-                  onClick={() => setOpenCart(false)}
-                  aria-label='Close cart'
-                >
-                  <X strokeWidth={2} size={19} />
-                </div>
-              ) : (
-                <div
-                  className='cartIcon'
-                  onClick={() => setOpenCart(true)}
-                  aria-label='Open cart'
-                >
-                  BAG
-                </div>
-              )}
-              {/* </div> */}
+              {/* Cart icon */}
+              <div
+                className='cartIcon'
+                style={{ marginTop: '2px', marginLeft: '10px' }}
+                onClick={() => togglePanel('cart')}
+              >
+                {activePanel === 'cart' ? (
+                  <X strokeWidth={1} size={19} />
+                ) : (
+                  <Handbag strokeWidth={1} size={19} />
+                )}
+              </div>
             </div>
           </div>
         </nav>
       </header>
 
-      {/* Cart drawer */}
-      {openCart && <CartComponent onClose={() => setOpenCart(false)} />}
-      {isSearchOpen && (
-        <SearchComponent onClose={() => setIsSearchOpen(false)} />
+      {/* Panels – only one can ever be open */}
+      {activePanel === 'cart' && (
+        <CartComponent onClose={() => setActivePanel(null)} />
       )}
-      {/* DropDown mobile menu (controlled by same state) */}
-      {open && <DropDown onClose={() => setOpen(false)} isOpen={open} />}
+
+      {activePanel === 'search' && (
+        <SearchComponent onClose={() => setActivePanel(null)} />
+      )}
+
+      {activePanel === 'menu' && (
+        <DropDown onClose={() => setActivePanel(null)} isOpen />
+      )}
     </>
   )
 }

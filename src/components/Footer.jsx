@@ -131,7 +131,7 @@ export default function Footer () {
     label: `<br />
   NAKACHI NDUMDI, a Division of NAKACHI NDUMDI<br />
  Limited Liability Company.
-  Head Office: 6900 Lenox Village Dr, Apt. 575,Nashville,
+  Head Office: 6900 Lenox Village Dr, Apt. 575, Nashville,
    Tennessee 37211, USA.`,
     href: '#'
   }

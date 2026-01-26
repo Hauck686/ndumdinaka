@@ -35,13 +35,13 @@
   .cookies-actions {
     display: flex;
     gap: 0.8rem;
+    width: 100%;
+    flex-direction: column;
   }
 
   button {
     border: none;
     padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    // 600;
     cursor: pointer;
     transition: all 0.3s ease;
   }
