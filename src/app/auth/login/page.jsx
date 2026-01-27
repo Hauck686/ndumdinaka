@@ -4,16 +4,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 
-/**
- * AuthPage with a "Resend OTP" (request OTP again) feature.
- * - Resend uses the same /api/auth/login endpoint (POST { email }) to send a new code.
- * - A cooldown prevents repeated clicks (default 30s). You can adjust cooldownSeconds.
- * - Limited resend attempts can be enforced (default maxResendAttempts = 5).
- * - Status messages are announced via an aria-live region for accessibility.
- *
- * Drop-in replacement for your original component.
- */
-
 export default function AuthPage () {
   const router = useRouter()
 

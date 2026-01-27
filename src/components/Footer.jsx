@@ -217,15 +217,6 @@ export default function Footer () {
           }
         />
 
-        {/* <div
-          className='footer-current'
-          onClick={() =>
-            handleLinkClick('language', { label: selectedLanguage })
-          }
-        >
-          <span className='footer-title'>Language: {selectedLanguage}</span>
-        </div> */}
-
         <div
           className='footer-current'
           onClick={() => handleLinkClick('country', { label: selectedCountry })}

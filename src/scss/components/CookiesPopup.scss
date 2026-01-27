@@ -3,16 +3,18 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(15, 15, 15, 0.95);
-  color: #fff;
+  background: #fff;
+  color: #000;
   padding: 1.2rem 1.5rem;
   z-index: 9999;
   animation: slideUp 0.4s ease-in-out;
   display: flex;
   justify-content: center;
+  border: 1px solid #000;
 }
 
 .cookies-container {
+  padding: 1rem 1.5rem;
   max-width: 900px;
   display: flex;
   align-items: center;
@@ -25,9 +27,10 @@
     font-size: 0.9rem;
     line-height: 1.4rem;
     margin: 0;
+    text-align: center;
 
     a {
-      color: #fff;
+      color: #000;
       text-decoration: underline;
     }
   }
@@ -47,8 +50,8 @@
   }
 
   .accept-btn {
-    background: #fff;
-    color: #000;
+    background: #000;
+    color: #fff;
 
     &:hover {
       background: #e5e5e5;
@@ -56,8 +59,8 @@
   }
 
   .decline-btn {
-    background: transparent;
-    border: 1px solid #fff;
+    background: #000;
+    border: 1px solid #000;
     color: #fff;
 
     &:hover {

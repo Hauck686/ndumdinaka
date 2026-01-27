@@ -63,7 +63,7 @@
 
 .section-title {
   color: #bbb;
-  // 700;
+  font-size: small;
   margin-bottom: 0.5rem;
 }
 
@@ -73,11 +73,11 @@ span {
   display: block;
   color: #272727;
   margin: 0.15rem 0;
-  // 700;
+  font-size: small;
 
   @media (max-width: 900px) {
     margin: 0.15rem 0;
-    // 700;
+    font-size: small;
   }
 }
 
@@ -170,7 +170,7 @@ span {
 .back-btn {
   margin-bottom: 1rem;
   cursor: pointer;
-  // 700;
+  font-size: small;
 }
 
 @keyframes slideIn {

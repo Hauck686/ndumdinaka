@@ -21,7 +21,7 @@ export const metadata = {
     'womens fashion',
     'affordable fashion '
   ],
-  metadataBase: new URL('https://nakachi.netlify.app'),
+  metadataBase: new URL('http://nakachindumdi.com'),
   alternates: {
     canonical: '/'
   },
@@ -29,7 +29,7 @@ export const metadata = {
     title: 'NAKACHI NDUMDI',
     description:
       'NAKACHI NDUMDI offers premium fashion, custom designs, ready-to-wear outfits and fast nationwide delivery in.',
-    url: 'https://nakachi.netlify.app',
+    url: 'http://nakachindumdi.com',
     siteName: 'NAKACHI NDUMDI',
     images: [
       {

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import CartComponent from './products/CartComponent'
-import { Search, X, Menu, Handbag } from 'lucide-react'
+import { Search, X, Menu, Handbag, ShoppingBag } from 'lucide-react'
 import SearchComponent from './SearchComponent'
 
 const navMenu = [
@@ -161,13 +161,15 @@ export default function Header () {
               {/* Cart icon */}
               <div
                 className='cartIcon'
-                style={{ marginTop: '2px', marginLeft: '10px' }}
+                style={{ marginTop: '2px', marginLeft: '1px' }}
                 onClick={() => togglePanel('cart')}
               >
                 {activePanel === 'cart' ? (
                   <X strokeWidth={1} size={19} />
                 ) : (
-                  <Handbag strokeWidth={1} size={19} />
+                  <ShoppingBag strokeWidth={1} size={19} />
+
+                  // <Handbag strokeWidth={1} size={19} />
                 )}
               </div>
             </div>
