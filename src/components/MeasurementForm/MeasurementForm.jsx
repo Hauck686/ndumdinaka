@@ -113,8 +113,6 @@ export default function MeasurementForm ({
       }
       return saved
     } catch (err) {
-      // fallback id if localStorage fails
-      // eslint-disable-next-line no-console
       console.error('Failed to persist measurement locally', err)
       return { id: Date.now().toString(), ...payload }
     }
@@ -130,9 +128,6 @@ export default function MeasurementForm ({
 
   async function saveMeasurement () {
     setSaving(true)
-    if (!checkLogin()) {
-      router.push('/login')
-    }
 
     if (!areAllFieldsFilled()) {
       showNotification(
@@ -143,80 +138,76 @@ export default function MeasurementForm ({
       return
     }
 
+    const userId =
+      typeof window !== 'undefined' ? localStorage.getItem('userId') : null
+
     const payload = {
       type: activeType,
       unit,
       values,
       productId: productId || null,
-      userId:
-        typeof window !== 'undefined'
-          ? localStorage.getItem('userId') || null
-          : null,
+      userId: userId,
       createdAt: new Date().toISOString()
     }
 
-    // Try backend first (if configured). If success, still save to localStorage.
-    if (process.env.NEXT_PUBLIC_BACKEND_URL) {
-      try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/measurements`,
-          payload
-        )
-        const saved =
-          res && res.data ? res.data : { id: Date.now().toString(), ...payload }
-
-        // Always persist locally as well
-        const localSaved = persistLocally(saved)
-
-        if (onSaved) onSaved(saved)
-
-        // redirect back to product page with measurementId param
-        if (productId) {
-          const idToUse =
-            saved.id || saved._id || saved.measurementId || localSaved.id
-          // Use replace and add a flag to indicate we came from the measurement flow.
-          // The product page should check `fromMeasurement=1` and avoid duplicating an add-to-cart action.
-          const url = `/Products/id/${productId}?measurementId=${encodeURIComponent(
-            idToUse
-          )}&fromMeasurement=1`
-          router.replace(url)
-        } else {
-          router.back()
-        }
-        return
-      } catch (err) {
-        // backend save failed -> fall through to local persist below
-        // eslint-disable-next-line no-console
-        console.warn('Backend save failed, falling back to localStorage', err)
-      } finally {
-        // clear saving in case we remain mounted
-        setSaving(false)
-      }
-    }
-
-    // Local storage fallback: persist and redirect
+    // ALWAYS save to localStorage first (for both guests and logged-in users)
+    let savedMeasurement
     try {
-      const saved = persistLocally(payload)
-      if (onSaved) onSaved(saved)
-      if (productId) {
-        const url = `/Products/id/${productId}?measurementId=${encodeURIComponent(
-          saved.id
-        )}&fromMeasurement=1`
-        router.replace(url)
-      } else {
-        router.back()
-      }
+      savedMeasurement = persistLocally(payload)
+      showNotification('✅ Measurement saved!', 'success')
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('Failed to save measurement to localStorage', err)
       showNotification(
-        'Please wait while your measurement is being processed...',
-        'info'
+        'Unable to save measurements. Please try again.',
+        'error'
       )
-      alert('Unable to save measurements. Please try again.')
-    } finally {
       setSaving(false)
+      return
     }
+
+    // If user is logged in, ALSO save to backend as backup
+    if (userId && process.env.NEXT_PUBLIC_BACKEND_URL) {
+      try {
+        const token = localStorage.getItem('token')
+
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/measurements`,
+          payload,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          }
+        )
+
+        // Update the saved measurement with backend ID if available
+        if (res?.data?._id) {
+          savedMeasurement = { ...savedMeasurement, _id: res.data._id }
+        }
+
+        console.log('✅ Measurement also synced to backend')
+      } catch (err) {
+        console.warn(
+          'Backend sync failed, but measurement is saved locally',
+          err
+        )
+        // Don't show error - localStorage save already succeeded
+      }
+    }
+
+    // Call onSaved callback if provided
+    if (onSaved) onSaved(savedMeasurement)
+
+    // Redirect back to product page with measurementId param
+    if (productId) {
+      const idToUse = savedMeasurement._id || savedMeasurement.id
+      const url = `/Products/id/${productId}?measurementId=${encodeURIComponent(
+        idToUse
+      )}&fromMeasurement=1`
+      router.replace(url)
+    } else {
+      router.back()
+    }
+
+    setSaving(false)
   }
 
   // check that every field has a value

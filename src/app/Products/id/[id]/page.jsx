@@ -12,7 +12,7 @@ export default function ProductDetailsPage () {
   const { id } = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { showNotification } = useNotification()
+  // const { showNotification } = useNotification()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -132,7 +132,7 @@ export default function ProductDetailsPage () {
     return null
   }
 
-  // If route contains ?measurementId=..., automatically attach it to cart then remove the param
+  // REMOVE the checkLogin call from the auto-attach flow
   useEffect(() => {
     if (!product) return
     const measurementId = searchParams?.get('measurementId')
@@ -143,14 +143,15 @@ export default function ProductDetailsPage () {
     async function attachAndNotify () {
       processingMeasurementIdsRef.current.add(measurementId)
 
-      if (!checkLogin()) {
-        processingMeasurementIdsRef.current.delete(measurementId)
-        return
-      }
+      // ❌ REMOVE THIS - Don't check login here
+      // if (!checkLogin()) {
+      //   processingMeasurementIdsRef.current.delete(measurementId)
+      //   return
+      // }
 
       const measurement = await fetchMeasurementById(measurementId)
       if (!measurement) {
-        showNotification('Saved measurement not found', 'warning')
+        // showNotification('Saved measurement not found', 'warning')
         setProcessedMeasurementId(measurementId)
         processingMeasurementIdsRef.current.delete(measurementId)
         // remove param from URL without navigation
@@ -172,7 +173,7 @@ export default function ProductDetailsPage () {
       priceToCharge += 250
 
       const cartItem = {
-        userId: localStorage.getItem('userId'),
+        userId: localStorage.getItem('userId') || null, // ✅ Allow null for guests
         productId: product._id,
         name: product.name,
         price: priceToCharge,
@@ -187,43 +188,100 @@ export default function ProductDetailsPage () {
         reserved: isReserve
       }
 
-      try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
-          cartItem
-        )
-        if (res.data && res.data.success) {
-          showNotification(
-            'Measurement saved and product added to cart',
-            'success'
+      // ✅ Check if user is logged in
+      const userId = localStorage.getItem('userId')
+
+      if (userId) {
+        // User is logged in - save to backend
+        try {
+          const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            cartItem
           )
+          if (res.data && res.data.success) {
+            // showNotification(
+            //   'Measurement saved and product added to cart',
+            //   'success'
+            // )
+            // mark processed
+            setProcessedMeasurementId(measurementId)
+
+            // remove measurementId from URL without a full page navigation
+            if (typeof window !== 'undefined') {
+              const url = new URL(window.location.href)
+              url.searchParams.delete('measurementId')
+              window.history.replaceState(null, '', url.toString())
+            }
+
+            // Show the preview sheet
+            setPreviewItem(cartItem)
+            setPreviewCartCount(res.data.cartCount || 1)
+            setPreviewOpen(true)
+          } else {
+            // showNotification(
+            //   'Failed to add product with measurement to cart',
+            //   'error'
+            // )
+          }
+        } catch (err) {
+          // showNotification(
+          // 'Something went wrong adding measured product to cart',
+          // 'error'
+          // )
+        } finally {
+          processingMeasurementIdsRef.current.delete(measurementId)
+        }
+      } else {
+        // ✅ User is NOT logged in - save to localStorage (guest cart)
+        try {
+          const existingCart = JSON.parse(
+            localStorage.getItem('guestCart') || '[]'
+          )
+
+          // Check if item already exists in cart
+          const existingItemIndex = existingCart.findIndex(
+            item =>
+              item.productId === cartItem.productId &&
+              item.measurementId === cartItem.measurementId
+          )
+
+          if (existingItemIndex > -1) {
+            // Update quantity of existing item
+            existingCart[existingItemIndex].quantity += cartQty
+          } else {
+            // Add new item
+            existingCart.push(cartItem)
+          }
+
+          localStorage.setItem('guestCart', JSON.stringify(existingCart))
+
+          // showNotification(
+          //   'Measurement saved and product added to cart',
+          //   'success'
+          // )
+
           // mark processed
           setProcessedMeasurementId(measurementId)
 
-          // remove measurementId from URL without a full page navigation
+          // remove measurementId from URL
           if (typeof window !== 'undefined') {
             const url = new URL(window.location.href)
             url.searchParams.delete('measurementId')
             window.history.replaceState(null, '', url.toString())
           }
 
-          // Show the preview sheet; use cartCount if backend returned it, else default to 1
+          // Show the preview sheet
           setPreviewItem(cartItem)
-          setPreviewCartCount(res.data.cartCount || 1)
+          setPreviewCartCount(existingCart.length)
           setPreviewOpen(true)
-        } else {
-          showNotification(
-            'Failed to add product with measurement to cart',
-            'error'
-          )
+        } catch (error) {
+          // showNotification(
+          //   'Something went wrong adding measured product to cart',
+          //   'error'
+          // )
+        } finally {
+          processingMeasurementIdsRef.current.delete(measurementId)
         }
-      } catch (err) {
-        showNotification(
-          'Something went wrong adding measured product to cart',
-          'error'
-        )
-      } finally {
-        processingMeasurementIdsRef.current.delete(measurementId)
       }
     }
 
@@ -233,69 +291,137 @@ export default function ProductDetailsPage () {
 
   const handleAddToCart = async () => {
     if (!product) return
-    if (!checkLogin()) return
 
     const isReserve = product.quantity <= 0
     const numericPrice = Number(product.price) || 0
-    const priceToCharge = isReserve
+    let priceToCharge = isReserve
       ? parseFloat((numericPrice * 0.5).toFixed(2))
       : numericPrice
 
     const measurementId = searchParams?.get('measurementId')
+
+    // ✅ Handle measurement-based cart addition
     if (measurementId) {
-      showNotification(
-        'This product will use your custom measurement. Size selection is ignored.',
-        'info'
-      )
+      // showNotification(
+      //   'This product will use your custom measurement. Size selection is ignored.',
+      //   'info'
+      // )
       if (processedMeasurementId === measurementId) {
-        showNotification('Measurement already processed', 'info')
+        // showNotification('Measurement already processed', 'info')
         return
       }
       if (processingMeasurementIdsRef.current.has(measurementId)) {
-        showNotification(
-          'Measurement is being processed, please wait...',
-          'info'
-        )
+        // showNotification(
+        //   'Measurement is being processed, please wait...',
+        //   'info'
+        // )
         return
       }
 
       const measurement = await fetchMeasurementById(measurementId)
       if (!measurement) {
-        showNotification('Saved measurement not found', 'warning')
+        // showNotification('Saved measurement not found', 'warning')
         return
       }
 
       processingMeasurementIdsRef.current.add(measurementId)
 
+      // 🔥 ADD CUSTOM MEASUREMENT FEE (₦250)
+      priceToCharge += 250
+
       const cartItem = {
-        userId: localStorage.getItem('userId'),
+        userId: localStorage.getItem('userId') || null,
         productId: product._id,
         name: product.name,
         price: priceToCharge,
-        size: selectedSize || null,
+        size: measurement.values || null,
         color: selectedColor || null,
-        initials: initialsToSend,
-        uniqueKey: `${product._id}-${selectedColor || ''}-${
-          initialsToSend || ''
-        }`,
+        initials: initials || null,
+        measurementId,
+        measurementData: measurement,
+        measurementSizes: measurement.values || null,
+        uniqueKey: `${product._id}-measurement-${measurementId}`, // ✅ Unique key for measurements
         quantity: cartQty,
         image: product.images?.[0] || '/placeholder.png',
         brand: product.brand,
         reserved: isReserve
       }
 
-      try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
-          cartItem
-        )
-        if (res.data && res.data.success) {
-          showNotification(
-            isReserve
-              ? `Product reserved and added to cart — charged ${priceToCharge}`
-              : 'Product added to cart with your measurements',
-            'success'
+      // Check if user is logged in
+      const userId = localStorage.getItem('userId')
+
+      if (userId) {
+        // User is logged in - save to backend
+        try {
+          const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            cartItem
           )
+          if (res.data && res.data.success) {
+            // showNotification(
+            //   isReserve
+            //     ? `Product reserved and added to cart — charged ₦${priceToCharge}`
+            //     : 'Product added to cart with your measurements',
+            //   'success'
+            // )
+            setProcessedMeasurementId(measurementId)
+
+            // remove measurement param without reload
+            if (typeof window !== 'undefined') {
+              const url = new URL(window.location.href)
+              url.searchParams.delete('measurementId')
+              window.history.replaceState(null, '', url.toString())
+            }
+
+            // open preview
+            setPreviewItem(cartItem)
+            setPreviewCartCount(res.data.cartCount || 1)
+            setPreviewOpen(true)
+          } else {
+            // showNotification(
+            //   'Failed to add product with measurement to cart',
+            //   'error'
+            // )
+          }
+        } catch (err) {
+          // showNotification(
+          // 'Something went wrong adding measured product to cart',
+          // 'error'
+          // )
+        } finally {
+          processingMeasurementIdsRef.current.delete(measurementId)
+        }
+      } else {
+        // ✅ User is NOT logged in - save to localStorage (guest cart)
+        try {
+          const existingCart = JSON.parse(
+            localStorage.getItem('guestCart') || '[]'
+          )
+
+          // Check if item already exists (by productId + measurementId)
+          const existingItemIndex = existingCart.findIndex(
+            item =>
+              item.productId === cartItem.productId &&
+              item.measurementId === cartItem.measurementId
+          )
+
+          if (existingItemIndex > -1) {
+            // Update quantity of existing item
+            existingCart[existingItemIndex].quantity += cartQty
+            // showNotification(`Updated quantity in cart`, 'success')
+          } else {
+            // Add new item
+            existingCart.push(cartItem)
+            // showNotification(
+            //   isReserve
+            //     ? `Product reserved and added to cart — charged ₦${priceToCharge}`
+            //     : 'Product added to cart with your measurements',
+            //   'success'
+            // )
+          }
+
+          localStorage.setItem('guestCart', JSON.stringify(existingCart))
+
           setProcessedMeasurementId(measurementId)
 
           // remove measurement param without reload
@@ -307,25 +433,21 @@ export default function ProductDetailsPage () {
 
           // open preview
           setPreviewItem(cartItem)
-          setPreviewCartCount(res.data.cartCount || 1)
+          setPreviewCartCount(existingCart.length)
           setPreviewOpen(true)
-        } else {
-          showNotification(
-            'Failed to add product with measurement to cart',
-            'error'
-          )
+        } catch (error) {
+          // showNotification(
+          //   'Something went wrong adding measured product to cart',
+          //   'error'
+          // )
+        } finally {
+          processingMeasurementIdsRef.current.delete(measurementId)
         }
-      } catch (err) {
-        showNotification(
-          'Something went wrong adding measured product to cart',
-          'error'
-        )
-      } finally {
-        processingMeasurementIdsRef.current.delete(measurementId)
       }
 
       return
     }
+
     let initialsToSend = initials || null
 
     // Normal add-to-cart (no measurement)
@@ -361,44 +483,86 @@ export default function ProductDetailsPage () {
     }
 
     const cartItem = {
-      userId: localStorage.getItem('userId'),
+      userId: localStorage.getItem('userId') || null,
       productId: product._id,
       name: product.name,
       price: priceToCharge,
       size: selectedSize || null,
       color: selectedColor || null,
       initials: initialsToSend,
-      uniqueKey: `${product._id}-${selectedColor || ''}-${
-        initialsToSend || ''
-      }`,
+      uniqueKey: `${product._id}-${selectedSize || 'nosize'}-${
+        selectedColor || 'nocolor'
+      }-${initialsToSend || 'noinitials'}`,
       quantity: cartQty,
       image: product.images?.[0] || '/placeholder.png',
       brand: product.brand,
       reserved: isReserve
     }
 
-    try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
-        cartItem
-      )
-      if (res.data && res.data.success) {
-        showNotification(
-          isReserve
-            ? `Reserved ${cartQty} ${product.name} — charged ${priceToCharge} each`
-            : `${cartQty} ${product.name} added to cart!`,
-          'success'
+    // Check if user is logged in
+    const userId = localStorage.getItem('userId')
+
+    if (userId) {
+      // User is logged in - save to backend
+      try {
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+          cartItem
         )
+        if (res.data && res.data.success) {
+          // showNotification(
+          //   isReserve
+          //     ? `Reserved ${cartQty} ${product.name} — charged ₦${priceToCharge} each`
+          //     : `${cartQty} ${product.name} added to cart!`,
+          //   'success'
+          // )
+
+          // show preview
+          setPreviewItem(cartItem)
+          setPreviewCartCount(res.data.cartCount || 1)
+          setPreviewOpen(true)
+        } else {
+          // showNotification('❌ Failed to add item.', 'error')
+        }
+      } catch {
+        // showNotification('Something went wrong adding to cart', 'error')
+      }
+    } else {
+      // User is NOT logged in - save to localStorage
+      try {
+        const existingCart = JSON.parse(
+          localStorage.getItem('guestCart') || '[]'
+        )
+
+        // Check if item already exists in cart
+        const existingItemIndex = existingCart.findIndex(
+          item => item.uniqueKey === cartItem.uniqueKey
+        )
+
+        if (existingItemIndex > -1) {
+          // Update quantity of existing item
+          existingCart[existingItemIndex].quantity += cartQty
+        } else {
+          // Add new item
+          existingCart.push(cartItem)
+        }
+
+        localStorage.setItem('guestCart', JSON.stringify(existingCart))
+
+        // showNotification(
+        //   isReserve
+        //     ? `Reserved ${cartQty} ${product.name} — charged ₦${priceToCharge} each`
+        //     : `${cartQty} ${product.name} added to cart!`,
+        //   'success'
+        // )
 
         // show preview
         setPreviewItem(cartItem)
-        setPreviewCartCount(res.data.cartCount || 1)
+        setPreviewCartCount(existingCart.length)
         setPreviewOpen(true)
-      } else {
-        showNotification('❌ Failed to add item.', 'error')
+      } catch (error) {
+        // showNotification('Something went wrong adding to cart', 'error')
       }
-    } catch {
-      showNotification('Something went wrong adding to cart', 'error')
     }
   }
 

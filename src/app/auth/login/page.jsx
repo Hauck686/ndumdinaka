@@ -6,6 +6,69 @@ import { useRouter } from 'next/navigation'
 
 export default function AuthPage () {
   const router = useRouter()
+  // Add this helper function at the top of your component (outside the main function)
+  const mergeGuestCartToUser = async (userId, token) => {
+    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
+
+    if (guestCart.length > 0) {
+      try {
+        for (const item of guestCart) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            { ...item, userId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        }
+        localStorage.removeItem('guestCart')
+        console.log('✅ Guest cart merged successfully')
+      } catch (err) {
+        console.error('❌ Failed to merge guest cart:', err)
+      }
+    }
+  }
+
+  // Add this helper function in your auth page
+  const mergeGuestDataToUser = async (userId, token) => {
+    // Merge guest cart
+    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
+
+    if (guestCart.length > 0) {
+      try {
+        for (const item of guestCart) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            { ...item, userId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        }
+        localStorage.removeItem('guestCart')
+        console.log('✅ Guest cart merged successfully')
+      } catch (err) {
+        console.error('❌ Failed to merge guest cart:', err)
+      }
+    }
+
+    // Merge guest measurements
+    const guestMeasurements = JSON.parse(
+      localStorage.getItem('customMeasurements') || '[]'
+    )
+
+    if (guestMeasurements.length > 0) {
+      try {
+        for (const measurement of guestMeasurements) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/measurements`,
+            { ...measurement, userId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        }
+        localStorage.removeItem('customMeasurements')
+        console.log('✅ Guest measurements merged successfully')
+      } catch (err) {
+        console.error('❌ Failed to merge guest measurements:', err)
+      }
+    }
+  }
 
   // Steps: "email" | "otp"
   const [step, setStep] = useState('email')
@@ -88,26 +151,27 @@ export default function AuthPage () {
       setError('')
       setStatus('')
 
+      // Normalize email to lowercase
+      const normalizedEmail = email.toLowerCase().trim()
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email }
+        { email: normalizedEmail }
       )
 
       const data = res.data
       console.log('✅ Login response:', data)
 
-      // Save to localStorage for later (persist to allow refresh)
-      localStorage.setItem('email', email)
+      // Save normalized email
+      localStorage.setItem('email', normalizedEmail)
       if (data.user?._id) {
         localStorage.setItem('userId', data.user._id)
       }
 
       setStep('otp')
       setStatus('Code sent. Check your email.')
-      // start resend cooldown
       setResendCooldown(cooldownSeconds)
-      setResendAttempts(0) // reset attempts on initial send
-      // Announce to screen readers (aria-live)
+      setResendAttempts(0)
       if (announceRef.current)
         announceRef.current.textContent = 'Code sent to your email.'
     } catch (err) {
@@ -120,9 +184,8 @@ export default function AuthPage () {
     }
   }
 
-  // Resend OTP (clickable from OTP step)
+  // Resend OTP
   const handleResend = async () => {
-    // Prevent resending if cooldown active or too many attempts
     if (!email) {
       setError('Email missing. Please re-enter your email.')
       return
@@ -145,10 +208,12 @@ export default function AuthPage () {
       setError('')
       setStatus('')
 
-      // Use same endpoint as initial login to issue a new OTP
+      // Normalize email to lowercase
+      const normalizedEmail = email.toLowerCase().trim()
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email }
+        { email: normalizedEmail }
       )
       const data = res.data
       console.log('🔁 Resend response:', data)
@@ -184,35 +249,88 @@ export default function AuthPage () {
       setError('')
       setStatus('')
 
-      const currentEmail = email || localStorage.getItem('email')
+      // Normalize email to lowercase
+      const currentEmail = (email || localStorage.getItem('email'))
+        .toLowerCase()
+        .trim()
+
+      console.log('=== VERIFICATION DEBUG ===')
+      console.log('Email:', currentEmail)
+      console.log('Code:', code)
+      console.log('Code length:', code.length)
+      console.log('Code type:', typeof code)
+      console.log('========================')
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify`,
-        { email: currentEmail, code }
+        {
+          email: currentEmail,
+          code: code.trim() // Also trim the code
+        }
       )
       const data = res.data
       console.log('✅ Verify response:', data)
 
+      // Store authentication data consistently
       if (data.token) {
+        localStorage.setItem('token', data.token)
         localStorage.setItem('authToken', data.token)
       }
       if (data.user?._id) {
         localStorage.setItem('userId', data.user._id)
-        localStorage.setItem('token', data.token)
+      }
+      // Check if user came from cart
+      const redirect = localStorage.getItem('redirectAfterLogin')
+      if (redirect === 'cart') {
+        // Merge guest cart before redirecting
+        if (data.user?._id && data.token) {
+          await mergeGuestCartToUser(data.user._id, data.token)
+        }
+
+        if (data.user?._id && data.token) {
+          await mergeGuestDataToUser(data.user._id, data.token)
+        }
+
+        localStorage.removeItem('redirectAfterLogin')
+        localStorage.removeItem('email')
+
+        // Set flag to open cart
+        localStorage.setItem('openCartOnLoad', 'true')
+
+        // Go back to previous page
+        router.back()
+        return
       }
 
-      // cleanup
+      // Cleanup
       localStorage.removeItem('email')
 
-      // redirect based on role
+      // Redirect based on role
       if (data.user?.role === 'admin') {
         router.push('/admin/dashboard')
       } else {
         router.push('/user/user-profile')
       }
     } catch (err) {
-      console.error('❌ Verify error:', err)
-      setError(err.response?.data?.msg || 'Invalid code. Try again.')
-      if (announceRef.current) announceRef.current.textContent = 'Invalid code.'
+      console.error('=== ERROR DEBUG ===')
+      console.error('Full error object:', err)
+      console.error('Error response:', err.response)
+      console.error('Error response data:', err.response?.data)
+      console.error('Error response status:', err.response?.status)
+      console.error('Error response headers:', err.response?.headers)
+      console.error('Error message:', err.message)
+      console.error('==================')
+
+      const errorMsg =
+        err.response?.data?.msg ||
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Invalid code. Try again.'
+
+      setError(errorMsg)
+      if (announceRef.current) {
+        announceRef.current.textContent = errorMsg
+      }
     } finally {
       setLoading(false)
     }

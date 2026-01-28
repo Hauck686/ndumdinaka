@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import CartComponent from './products/CartComponent'
-import { Search, X, Menu, Handbag, ShoppingBag } from 'lucide-react'
+import { Search, X, Menu } from 'lucide-react'
 import SearchComponent from './SearchComponent'
 
 const navMenu = [
@@ -89,11 +89,12 @@ export default function Header () {
   if (!mounted) return null
 
   const accountMenu = [
-    { label: 'Search', action: () => togglePanel('search') },
     {
       label: token ? 'Profile' : 'Login',
       href: token ? '/user/user-profile' : '/auth/login'
     },
+    { label: 'Search', action: () => togglePanel('search') },
+
     { label: 'Cart', action: () => togglePanel('cart') }
   ]
 
@@ -154,7 +155,7 @@ export default function Header () {
                       {item.label}
                     </span>
                   ) : (
-                    <Link href={item.href}>{item.label}</Link>
+                    <a href={item.href}>{item.label}</a>
                   )}
                 </li>
               ))}
@@ -165,7 +166,7 @@ export default function Header () {
               {/* Search icon */}
               <div
                 className='search-icon'
-                style={{ marginTop: '2px', marginLeft: '18px' }}
+                style={{ marginLeft: '18px' }}
                 onClick={() => togglePanel('search')}
               >
                 {activePanel === 'search' ? (

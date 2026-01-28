@@ -1,7 +1,7 @@
 'use client'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { useNotification } from '@/app/context/NotificationContext'
+// import { useNotification } from '@/app/context/NotificationContext'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import CheckoutForm from './CheckoutForm'
@@ -13,10 +13,11 @@ export default function CartComponent ({ onClose }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const { showNotification } = useNotification()
+  // const { //} = useNotification()
   const [token, setToken] = useState(null)
   const [userId, setUserId] = useState(null)
   const [clientSecret, setClientSecret] = useState(null)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
   // load from localStorage
   useEffect(() => {
@@ -26,20 +27,21 @@ export default function CartComponent ({ onClose }) {
     }
   }, [])
 
-  // fetch cart (reads localStorage token/userId and then fetches)
+  // fetch cart (reads localStorage for both guest and logged-in users)
   const fetchCart = async (uid, tok) => {
-    // ensure loading state while we decide/ fetch
     setLoading(true)
     try {
-      if (uid) {
+      if (uid && tok) {
+        // Logged-in user: fetch from backend
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/${uid}`,
           { headers: { Authorization: `Bearer ${tok}` } }
         )
         setItems(res.data.cart || [])
       } else {
-        const localCart = JSON.parse(localStorage.getItem('cart')) || []
-        setItems(localCart)
+        // Guest user: fetch from localStorage
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
+        setItems(guestCart)
       }
     } catch (err) {
       setError(err.response?.data?.msg || err.message)
@@ -49,7 +51,7 @@ export default function CartComponent ({ onClose }) {
     }
   }
 
-  // run once: read localStorage THEN fetch cart (so we don't fetch prematurely)
+  // run once: read localStorage THEN fetch cart
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined') {
@@ -70,7 +72,8 @@ export default function CartComponent ({ onClose }) {
     const updated = items.filter((_, i) => i !== idx)
     setItems(updated)
 
-    if (userId) {
+    if (userId && token) {
+      // Logged-in user: remove from backend
       try {
         const sizeParam =
           item.size && typeof item.size === 'object'
@@ -104,10 +107,108 @@ export default function CartComponent ({ onClose }) {
         showNotification('Failed to remove item ❌', 'error')
       }
     } else {
-      localStorage.setItem('cart', JSON.stringify(updated))
+      // Guest user: remove from localStorage
+      localStorage.setItem('guestCart', JSON.stringify(updated))
       showNotification(`${item.name} removed from cart 🗑️`, 'success')
     }
   }
+
+  // Merge guest cart AND measurements to user account after login
+  const mergeGuestDataToUser = async (uid, tok) => {
+    // Merge guest cart
+    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
+
+    if (guestCart.length > 0) {
+      try {
+        for (const item of guestCart) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            { ...item, userId: uid },
+            { headers: { Authorization: `Bearer ${tok}` } }
+          )
+        }
+        localStorage.removeItem('guestCart')
+        console.log('✅ Guest cart merged successfully')
+      } catch (err) {
+        console.error('Failed to merge guest cart:', err)
+      }
+    }
+
+    // Merge guest measurements
+    const guestMeasurements = JSON.parse(
+      localStorage.getItem('customMeasurements') || '[]'
+    )
+
+    if (guestMeasurements.length > 0) {
+      try {
+        for (const measurement of guestMeasurements) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/measurements`,
+            { ...measurement, userId: uid },
+            { headers: { Authorization: `Bearer ${tok}` } }
+          )
+        }
+        localStorage.removeItem('customMeasurements')
+        console.log('✅ Guest measurements merged successfully')
+      } catch (err) {
+        console.error('Failed to merge guest measurements:', err)
+      }
+    }
+
+    if (guestCart.length > 0 || guestMeasurements.length > 0) {
+      showNotification('Cart and measurements synced! 🎉', 'success')
+    }
+  }
+
+  // Merge guest cart to user account after login
+  const mergeGuestCartToUser = async (uid, tok) => {
+    const guestCart = JSON.parse(
+      localStorage.getItem('guestCart') ||
+        localStorage.getItem('customMeasurements') ||
+        '[]'
+    )
+
+    if (guestCart.length > 0) {
+      try {
+        for (const item of guestCart) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
+            { ...item, userId: uid },
+            { headers: { Authorization: `Bearer ${tok}` } }
+          )
+        }
+        // Clear guest cart after successful merge
+        localStorage.removeItem('guestCart')
+        showNotification('Cart items merged successfully! 🎉', 'success')
+      } catch (err) {
+        console.error('Failed to merge guest cart:', err)
+        showNotification('Failed to merge cart items', 'error')
+      }
+    }
+  }
+
+  // Handle login callback (call this after successful login)
+  const handlePostLogin = async () => {
+    const uid = localStorage.getItem('userId')
+    const tok = localStorage.getItem('token')
+
+    if (uid && tok) {
+      setUserId(uid)
+      setToken(tok)
+
+      // Merge guest cart to user account
+      await mergeGuestCartToUser(uid, tok)
+
+      // Refresh cart from backend
+      await fetchCart(uid, tok)
+
+      // Hide login prompt and proceed to checkout
+      setShowLoginPrompt(false)
+      await initiateCheckout(uid, tok)
+    }
+  }
+
+  handlePostLogin()
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -115,22 +216,14 @@ export default function CartComponent ({ onClose }) {
   )
   const isEmpty = items.length === 0
 
-  // start checkout: create PaymentIntent
-  const handleCheckout = async () => {
-    if (items.length === 0) {
-      showNotification('Cart is empty 🛒', 'error')
-      return
-    }
-
+  // Initiate checkout with payment intent
+  const initiateCheckout = async (uid, tok) => {
     try {
-      // Ensure measurement sizes (if present) are sent alongside each item
-      // If item.size is an object (we replaced sizes with measurement values), prefer that.
       const payloadItems = items.map(item => {
         const measurementSizes =
           (item.measurementData && item.measurementData.values) ||
           (item.size && typeof item.size === 'object' ? item.size : null)
 
-        // keep original item shape but include measurementSizes explicitly
         return {
           ...item,
           measurementSizes
@@ -139,14 +232,33 @@ export default function CartComponent ({ onClose }) {
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/create-payment-intent`,
-        { items: payloadItems, userId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { items: payloadItems, userId: uid },
+        { headers: { Authorization: `Bearer ${tok}` } }
       )
       setClientSecret(res.data.clientSecret)
     } catch (err) {
       console.error('❌ Checkout error:', err)
       showNotification('Failed to start checkout ❌', 'error')
     }
+  }
+
+  // Handle checkout button click
+  const handleCheckout = async () => {
+    if (items.length === 0) {
+      showNotification('Cart is empty 🛒', 'error')
+      return
+    }
+
+    // Check if user is logged in
+    if (!userId || !token) {
+      // Show login prompt for guest users
+      setShowLoginPrompt(true)
+      showNotification('Please login to proceed with checkout 🔐', 'info')
+      return
+    }
+
+    // User is logged in, proceed with checkout
+    await initiateCheckout(userId, token)
   }
 
   if (loading) {
@@ -168,7 +280,6 @@ export default function CartComponent ({ onClose }) {
   const renderMeasurementSummary = measurementObj => {
     if (!measurementObj) return null
     try {
-      // Show up to first 3 key:value pairs for compactness
       const keys = Object.keys(measurementObj)
       const preview = keys
         .slice(0, 3)
@@ -196,7 +307,6 @@ export default function CartComponent ({ onClose }) {
             <div className='cart-items'>
               <span className='cart-count'>Cart ({items.length})</span>
               {items.map((item, idx) => {
-                // If item.size is an object, it's a custom measurement (we replaced size)
                 const isMeasuredSize =
                   item.size && typeof item.size === 'object'
                 const measurementSummary =
@@ -258,6 +368,44 @@ export default function CartComponent ({ onClose }) {
                 <span>${subtotal.toLocaleString()}</span>
               </div>
 
+              {/* Login Prompt */}
+              {showLoginPrompt && (
+                <div
+                  className='login-prompt'
+                  style={{
+                    padding: '15px',
+                    marginBottom: '15px',
+                    backgroundColor: '#f0f9ff',
+                    // borderRadius: '8px',
+                    border: '1px solid #000'
+                  }}
+                >
+                  <p style={{ marginBottom: '10px', color: '#000' }}>
+                    submit and verify email to complete checkout
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        color: 'white',
+                        backgroundColor: '#000',
+                        border: 'none',
+                        // borderRadius: '6px',
+                        cursor: 'pointer',
+                        textAlign: 'center'
+                      }}
+                      onClick={() => {
+                        localStorage.setItem('redirectAfterLogin', 'cart')
+                        window.location.href = '/auth/login' // or use your login route
+                      }}
+                    >
+                      Login
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {clientSecret ? (
                 <Elements stripe={stripePromise}>
                   <CheckoutForm
@@ -265,6 +413,10 @@ export default function CartComponent ({ onClose }) {
                     onSuccess={pi => {
                       showNotification('Payment successful 🎉', 'success')
                       setClientSecret(null)
+                      // Clear cart after successful payment
+                      if (!userId) {
+                        localStorage.removeItem('guestCart')
+                      }
                       onClose()
                     }}
                   />
