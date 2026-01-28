@@ -45,7 +45,7 @@ export default function CartComponent ({ onClose }) {
       }
     } catch (err) {
       setError(err.response?.data?.msg || err.message)
-      showNotification('Failed to load cart ❌', 'error')
+      // showNotification('Failed to load cart ❌', 'error')
     } finally {
       setLoading(false)
     }
@@ -100,16 +100,16 @@ export default function CartComponent ({ onClose }) {
         )
 
         setItems(res.data.cart || [])
-        showNotification(`${item.name} removed from cart 🗑️`, 'success')
+        // showNotification(`${item.name} removed from cart 🗑️`, 'success')
       } catch (err) {
         console.error('❌ Failed to remove item:', err.response?.data || err)
         setItems(items) // rollback
-        showNotification('Failed to remove item ❌', 'error')
+        // showNotification('Failed to remove item ❌', 'error')
       }
     } else {
       // Guest user: remove from localStorage
       localStorage.setItem('guestCart', JSON.stringify(updated))
-      showNotification(`${item.name} removed from cart 🗑️`, 'success')
+      // showNotification(`${item.name} removed from cart 🗑️`, 'success')
     }
   }
 
@@ -156,7 +156,7 @@ export default function CartComponent ({ onClose }) {
     }
 
     if (guestCart.length > 0 || guestMeasurements.length > 0) {
-      showNotification('Cart and measurements synced! 🎉', 'success')
+      // showNotification('Cart and measurements synced! 🎉', 'success')
     }
   }
 
@@ -179,10 +179,10 @@ export default function CartComponent ({ onClose }) {
         }
         // Clear guest cart after successful merge
         localStorage.removeItem('guestCart')
-        showNotification('Cart items merged successfully! 🎉', 'success')
+        // showNotification('Cart items merged successfully! 🎉', 'success')
       } catch (err) {
         console.error('Failed to merge guest cart:', err)
-        showNotification('Failed to merge cart items', 'error')
+        // showNotification('Failed to merge cart items', 'error')
       }
     }
   }
@@ -238,14 +238,14 @@ export default function CartComponent ({ onClose }) {
       setClientSecret(res.data.clientSecret)
     } catch (err) {
       console.error('❌ Checkout error:', err)
-      showNotification('Failed to start checkout ❌', 'error')
+      // showNotification('Failed to start checkout ❌', 'error')
     }
   }
 
   // Handle checkout button click
   const handleCheckout = async () => {
     if (items.length === 0) {
-      showNotification('Cart is empty 🛒', 'error')
+      // showNotification('Cart is empty 🛒', 'error')
       return
     }
 
@@ -253,7 +253,7 @@ export default function CartComponent ({ onClose }) {
     if (!userId || !token) {
       // Show login prompt for guest users
       setShowLoginPrompt(true)
-      showNotification('Please login to proceed with checkout 🔐', 'info')
+      // showNotification('Please login to proceed with checkout 🔐', 'info')
       return
     }
 
@@ -411,7 +411,7 @@ export default function CartComponent ({ onClose }) {
                   <CheckoutForm
                     clientSecret={clientSecret}
                     onSuccess={pi => {
-                      showNotification('Payment successful 🎉', 'success')
+                      // showNotification('Payment successful 🎉', 'success')
                       setClientSecret(null)
                       // Clear cart after successful payment
                       if (!userId) {

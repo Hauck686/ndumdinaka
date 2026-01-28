@@ -47,7 +47,7 @@ export default function AddedToCartPreview ({
               ✕
             </button>
 
-            <p className='acp-title'>ADDED TO SHOPPING BAG</p>
+            <p className='acp-title'>Added To Cart</p>
 
             <div className='acp-body'>
               <div className='acp-image'>
