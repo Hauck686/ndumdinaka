@@ -13,7 +13,7 @@ export default function OrdersTable () {
   const [formData, setFormData] = useState({})
   const [search, setSearch] = useState('')
   const [bulkStatus, setBulkStatus] = useState('')
-  const { //} = useNotification()
+  const { showNotification } = useNotification()
 
   useEffect(() => {
     fetchOrders()
