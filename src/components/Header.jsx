@@ -62,6 +62,21 @@ export default function Header () {
       setToken(localStorage.getItem('token'))
     }
   }, [])
+  const HandbagIcon = ({ size = 19, strokeWidth = 1 }) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth={strokeWidth}
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <path d='M6 6h12l1 14H5L6 6z' />
+      <path d='M9 6V5a3 3 0 0 1 6 0v1' />
+    </svg>
+  )
 
   // Load cart count
   useEffect(() => {
@@ -90,6 +105,7 @@ export default function Header () {
           <div className='nav-left'>
             <div
               className='hamburger-menu'
+              style={{ marginTop: '5px', marginLeft: '1px' }}
               onClick={() => togglePanel('menu')}
               aria-label={activePanel === 'menu' ? 'Close menu' : 'Open menu'}
             >
@@ -149,6 +165,7 @@ export default function Header () {
               {/* Search icon */}
               <div
                 className='search-icon'
+                style={{ marginTop: '2px', marginLeft: '18px' }}
                 onClick={() => togglePanel('search')}
               >
                 {activePanel === 'search' ? (
@@ -161,13 +178,13 @@ export default function Header () {
               {/* Cart icon */}
               <div
                 className='cartIcon'
-                style={{ marginTop: '2px', marginLeft: '1px' }}
+                style={{ marginTop: '5px', marginLeft: '1px' }}
                 onClick={() => togglePanel('cart')}
               >
                 {activePanel === 'cart' ? (
                   <X strokeWidth={1} size={19} />
                 ) : (
-                  <ShoppingBag strokeWidth={1} size={19} />
+                  <HandbagIcon />
 
                   // <Handbag strokeWidth={1} size={19} />
                 )}
