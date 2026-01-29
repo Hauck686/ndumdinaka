@@ -208,7 +208,15 @@ export default function CartComponent ({ onClose }) {
     }
   }
 
-  handlePostLogin()
+  useEffect(() => {
+    const redirect = localStorage.getItem('redirectAfterLogin')
+
+    if (redirect === 'cart') {
+      handlePostLogin()
+      localStorage.removeItem('redirectAfterLogin')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -225,20 +233,35 @@ export default function CartComponent ({ onClose }) {
           (item.size && typeof item.size === 'object' ? item.size : null)
 
         return {
-          ...item,
-          measurementSizes
+          productId:
+            typeof item.productId === 'object'
+              ? item.productId._id
+              : item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          brand: item.brand,
+          size: item.size,
+          color: item.color,
+          measurementSizes,
+          measurementId: item.measurementId
         }
       })
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/create-payment-intent`,
-        { items: payloadItems, userId: uid },
+        {
+          items: payloadItems,
+          userId: uid,
+          shippingAddress: null // or fetch from user profile
+        },
         { headers: { Authorization: `Bearer ${tok}` } }
       )
       setClientSecret(res.data.clientSecret)
     } catch (err) {
-      console.error('❌ Checkout error:', err)
-      // showNotification('Failed to start checkout ❌', 'error')
+      console.error('❌ Checkout error:', err.response?.data || err.message)
+      alert(err.response?.data?.msg || 'Failed to start checkout')
     }
   }
 
