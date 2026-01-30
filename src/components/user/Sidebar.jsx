@@ -114,7 +114,7 @@ export default function Sidebar ({ isOpen, onClose }) {
             {loading
               ? 'Loading...'
               : error
-              ? 'Error loading user'
+              ? 'Super Admin'
               : email || (user ? user.email : 'No Email')}
           </span>
         </div>

@@ -162,11 +162,11 @@ export default function Header () {
             </ul>
 
             {/* Mobile icons */}
-            <div className='mobile-icon'>
+            <div className='mobile-icon' style={{ marginRight: '-10px' }}>
               {/* Search icon */}
               <div
                 className='search-icon'
-                style={{ marginLeft: '18px' }}
+                style={{ marginTop: '5px' }}
                 onClick={() => togglePanel('search')}
               >
                 {activePanel === 'search' ? (
@@ -179,7 +179,7 @@ export default function Header () {
               {/* Cart icon */}
               <div
                 className='cartIcon'
-                style={{ marginTop: '5px', marginLeft: '1px' }}
+                style={{ marginTop: '5px' }}
                 onClick={() => togglePanel('cart')}
               >
                 {activePanel === 'cart' ? (

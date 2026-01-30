@@ -865,10 +865,10 @@ export default function ProductDetailsPage () {
                 onClick={() => toggleDropdown('description')}
               >
                 <span>
-                  <span style={{ textTransform: 'lowercase' }}>
+                  <span style={{ textTransform: 'capitalize' }}>
                     {product.name}
                   </span>
-                  <span style={{ textTransform: 'lowercase' }}>
+                  <span style={{ textTransform: 'capitalize' }}>
                     {product.description}
                   </span>
                 </span>
@@ -883,7 +883,7 @@ export default function ProductDetailsPage () {
               >
                 <span>
                   <span>Details</span>
-                  <span style={{ textTransform: 'lowercase' }}>
+                  <span style={{ textTransform: 'capitalize' }}>
                     {product.brand}
                   </span>
                 </span>

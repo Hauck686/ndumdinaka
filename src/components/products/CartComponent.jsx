@@ -202,7 +202,7 @@ export default function CartComponent ({ onClose }) {
       // Refresh cart from backend
       await fetchCart(uid, tok)
 
-      // Hide login prompt and proceed to checkout
+      // Hide login prompt and  checkout
       setShowLoginPrompt(false)
       await initiateCheckout(uid, tok)
     }
