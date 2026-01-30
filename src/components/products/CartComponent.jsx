@@ -1,7 +1,6 @@
 'use client'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-// import { useNotification } from '@/app/context/NotificationContext'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import CheckoutForm from './CheckoutForm'
@@ -446,7 +445,7 @@ export default function CartComponent ({ onClose }) {
                 </Elements>
               ) : (
                 <button className='checkout-btn' onClick={handleCheckout}>
-                  Proceed with payment
+                  checkout
                 </button>
               )}
             </div>

@@ -179,7 +179,7 @@ export default function Header () {
               {/* Cart icon */}
               <div
                 className='cartIcon'
-                style={{ marginTop: '5px' }}
+                style={{ marginTop: '3px' }}
                 onClick={() => togglePanel('cart')}
               >
                 {activePanel === 'cart' ? (
