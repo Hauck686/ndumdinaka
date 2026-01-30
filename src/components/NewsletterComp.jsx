@@ -22,6 +22,11 @@ export default function NewsletterComp () {
 
   const handleSubmit = async e => {
     e.preventDefault()
+
+    if (!formData.consentPersonalized) {
+      setMessage('You must agree to the Privacy Policy to subscribe.')
+      return
+    }
     try {
       setLoading(true)
       await axios.post(
