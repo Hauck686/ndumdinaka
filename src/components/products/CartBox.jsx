@@ -98,7 +98,7 @@ export default function CartComponent ({ onClose, cartItems = [] }) {
                 <span>Subtotal</span>
                 <span>{subtotal}$</span>
               </div>
-              <button className='checkout-btn'> checkout</button>
+              <button className='checkout-btn'>Checkout</button>
             </div>
           </>
         )}
