@@ -226,7 +226,9 @@ export default function Footer () {
 
         <div className='footer-bottom'>
           <footer className='content-footer'>
-            <small>© 2025 NDUMDI NAKACHI — All rights reserved.</small>
+            <small>
+              ©{new Date().getFullYear()} NDUMDI NAKACHI. All rights reserved.
+            </small>
           </footer>
         </div>
       </div>
