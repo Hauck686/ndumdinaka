@@ -166,7 +166,7 @@ export default function Header () {
               {/* Search icon */}
               <div
                 className='search-icon'
-                style={{ marginTop: '5px' }}
+                style={{ marginTop: '2px' }}
                 onClick={() => togglePanel('search')}
               >
                 {activePanel === 'search' ? (
