@@ -98,7 +98,12 @@ export default function CartComponent ({ onClose, cartItems = [] }) {
                 <span>Subtotal</span>
                 <span>{subtotal}$</span>
               </div>
-              <button className='checkout-btn'>Checkout</button>
+              <button
+                className='checkout-btn'
+                style={{ textTransform: 'capitalize' }}
+              >
+                Checkout
+              </button>
             </div>
           </>
         )}
