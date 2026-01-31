@@ -1,24 +1,415 @@
 'use client'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Elements } from '@stripe/react-stripe-js'
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements
+} from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
-import CheckoutForm from './CheckoutForm'
 import SkeletonProductCard from '../SkeletonProductCard'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
+// Enhanced Checkout Form with Address Collection
+function EnhancedCheckoutForm ({
+  clientSecret,
+  onSuccess,
+  userId,
+  token,
+  items
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
+
+  const [processing, setProcessing] = useState(false)
+  const [error, setError] = useState(null)
+  const [checkoutStep, setCheckoutStep] = useState('shipping') // 'shipping' | 'payment'
+
+  // Shipping form state
+  const [shippingData, setShippingData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    apartment: '',
+    city: '',
+    state: '',
+    postcode: '',
+    phone: '',
+    country: 'United States'
+  })
+
+  // Load saved address if available
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (userId && token) {
+        try {
+          const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/profile`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+
+          // Load from addresses array if exists
+          if (res.data.addresses && res.data.addresses.length > 0) {
+            const primaryAddress = res.data.addresses[0]
+            const [firstName, ...lastNameParts] = (
+              primaryAddress.fullName || ''
+            ).split(' ')
+
+            setShippingData(prev => ({
+              ...prev,
+              firstName: firstName || '',
+              lastName: lastNameParts.join(' ') || '',
+              address: primaryAddress.addressLine1 || '',
+              apartment: primaryAddress.addressLine2 || '',
+              city: primaryAddress.city || '',
+              state: primaryAddress.state || '',
+              postcode: primaryAddress.zip || '',
+              phone: primaryAddress.phone || '',
+              country: primaryAddress.country || 'United States',
+              email: res.data.email || prev.email
+            }))
+          } else {
+            // Load basic info
+            setShippingData(prev => ({
+              ...prev,
+              firstName: res.data.firstName || '',
+              lastName: res.data.lastName || '',
+              email: res.data.email || prev.email
+            }))
+          }
+        } catch (err) {
+          console.error('Failed to load profile:', err)
+        }
+      }
+    }
+    loadUserProfile()
+  }, [userId, token])
+
+  const handleShippingChange = e => {
+    setShippingData({ ...shippingData, [e.target.name]: e.target.value })
+  }
+
+  const validateShipping = () => {
+    const required = [
+      'firstName',
+      'lastName',
+      'email',
+      'address',
+      'city',
+      'postcode',
+      'phone'
+    ]
+    for (const field of required) {
+      if (!shippingData[field]?.trim()) {
+        setError(`${field.replace(/([A-Z])/g, ' $1').trim()} is required`)
+        return false
+      }
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(shippingData.email)) {
+      setError('Please enter a valid email address')
+      return false
+    }
+
+    setError(null)
+    return true
+  }
+
+  const handleShippingSubmit = e => {
+    e.preventDefault()
+    if (validateShipping()) {
+      setCheckoutStep('payment')
+    }
+  }
+
+  const handlePaymentSubmit = async e => {
+    e.preventDefault()
+
+    if (!stripe || !elements) return
+
+    setProcessing(true)
+    setError(null)
+
+    try {
+      const cardElement = elements.getElement(CardElement)
+
+      // Confirm payment with shipping details
+      const { error: stripeError, paymentIntent } =
+        await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: `${shippingData.firstName} ${shippingData.lastName}`,
+              email: shippingData.email,
+              phone: shippingData.phone,
+              address: {
+                line1: shippingData.address,
+                line2: shippingData.apartment,
+                city: shippingData.city,
+                state: shippingData.state,
+                postal_code: shippingData.postcode,
+                country: 'US'
+              }
+            }
+          },
+          shipping: {
+            name: `${shippingData.firstName} ${shippingData.lastName}`,
+            phone: shippingData.phone,
+            address: {
+              line1: shippingData.address,
+              line2: shippingData.apartment,
+              city: shippingData.city,
+              state: shippingData.state,
+              postal_code: shippingData.postcode,
+              country: 'US'
+            }
+          }
+        })
+
+      if (stripeError) {
+        setError(stripeError.message)
+        setProcessing(false)
+        return
+      }
+
+      // Payment succeeded - now complete the order on backend
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
+        {
+          userId,
+          items,
+          shippingAddress: shippingData,
+          paymentIntentId: paymentIntent.id,
+          totalAmount: paymentIntent.amount / 100
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      console.log('✅ Order completed successfully')
+      onSuccess(paymentIntent)
+    } catch (err) {
+      console.error('Payment error:', err)
+      setError(err.response?.data?.msg || err.message || 'Payment failed')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  // Shipping Address Form
+  if (checkoutStep === 'shipping') {
+    return (
+      <form
+        className='checkout-form shipping-form'
+        onSubmit={handleShippingSubmit}
+      >
+        <div className='form-section'>
+          <h3 className='section-title'>Contact</h3>
+          <input
+            type='email'
+            name='email'
+            placeholder='Email'
+            value={shippingData.email}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+        </div>
+
+        <div className='form-section'>
+          <h3 className='section-title'>Delivery</h3>
+
+          <div className='form-row'>
+            <input
+              type='text'
+              name='firstName'
+              placeholder='First name'
+              value={shippingData.firstName}
+              onChange={handleShippingChange}
+              required
+              className='form-input'
+            />
+            <input
+              type='text'
+              name='lastName'
+              placeholder='Last name'
+              value={shippingData.lastName}
+              onChange={handleShippingChange}
+              required
+              className='form-input'
+            />
+          </div>
+
+          <input
+            type='text'
+            name='address'
+            placeholder='Address'
+            value={shippingData.address}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+
+          <input
+            type='text'
+            name='apartment'
+            placeholder='Apartment, suite, etc. (optional)'
+            value={shippingData.apartment}
+            onChange={handleShippingChange}
+            className='form-input'
+          />
+
+          <div className='form-row'>
+            <input
+              type='text'
+              name='city'
+              placeholder='City'
+              value={shippingData.city}
+              onChange={handleShippingChange}
+              required
+              className='form-input'
+            />
+            <input
+              type='text'
+              name='state'
+              placeholder='State'
+              value={shippingData.state}
+              onChange={handleShippingChange}
+              className='form-input'
+            />
+          </div>
+
+          <input
+            type='text'
+            name='postcode'
+            placeholder='Postcode'
+            value={shippingData.postcode}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+
+          <input
+            type='tel'
+            name='phone'
+            placeholder='Phone'
+            value={shippingData.phone}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+        </div>
+
+        {error && <div className='error-message'>{error}</div>}
+
+        <button type='submit' className='continue-btn'>
+          Continue to payment
+        </button>
+      </form>
+    )
+  }
+
+  // Payment Form
+  return (
+    <form className='checkout-form payment-form' onSubmit={handlePaymentSubmit}>
+      {/* Shipping Summary */}
+      <div className='form-section'>
+        <div className='section-header'>
+          <h3 className='section-title'>Shipping address</h3>
+          <button
+            type='button'
+            className='edit-btn'
+            onClick={() => setCheckoutStep('shipping')}
+          >
+            Edit
+          </button>
+        </div>
+        <div className='address-summary'>
+          <p>
+            {shippingData.firstName} {shippingData.lastName}
+          </p>
+          <p>{shippingData.address}</p>
+          {shippingData.apartment && <p>{shippingData.apartment}</p>}
+          <p>
+            {shippingData.city}
+            {shippingData.state && `, ${shippingData.state}`}{' '}
+            {shippingData.postcode}
+          </p>
+          <p>{shippingData.phone}</p>
+        </div>
+      </div>
+
+      {/* Payment Method */}
+      <div className='form-section'>
+        <h3 className='section-title'>Payment</h3>
+        <p className='secure-text'>
+          All transactions are secure and encrypted.
+        </p>
+
+        <div className='payment-method-box'>
+          <div className='payment-method-header'>
+            <label className='payment-option'>
+              <input type='radio' name='payment' checked readOnly />
+              <span>Credit card</span>
+            </label>
+            <div className='card-icons'>
+              <span style={{ fontSize: '11px', color: '#666' }}>
+                💳 Visa • Mastercard • Amex
+              </span>
+            </div>
+          </div>
+
+          <div className='card-element-container'>
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: '16px',
+                    color: '#424770',
+                    '::placeholder': {
+                      color: '#aab7c4'
+                    },
+                    fontFamily:
+                      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                  },
+                  invalid: {
+                    color: '#9e2146'
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && <div className='error-message'>{error}</div>}
+
+      <button
+        type='submit'
+        disabled={!stripe || processing}
+        className='pay-now-btn'
+      >
+        {processing ? 'Processing...' : 'Pay now'}
+      </button>
+    </form>
+  )
+}
+
+// Main Cart Component
 export default function CartComponent ({ onClose }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  // const { //} = useNotification()
   const [token, setToken] = useState(null)
   const [userId, setUserId] = useState(null)
   const [clientSecret, setClientSecret] = useState(null)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
-  // load from localStorage
+  // Load from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setUserId(localStorage.getItem('userId'))
@@ -26,31 +417,27 @@ export default function CartComponent ({ onClose }) {
     }
   }, [])
 
-  // fetch cart (reads localStorage for both guest and logged-in users)
+  // Fetch cart
   const fetchCart = async (uid, tok) => {
     setLoading(true)
     try {
       if (uid && tok) {
-        // Logged-in user: fetch from backend
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/${uid}`,
           { headers: { Authorization: `Bearer ${tok}` } }
         )
         setItems(res.data.cart || [])
       } else {
-        // Guest user: fetch from localStorage
         const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
         setItems(guestCart)
       }
     } catch (err) {
       setError(err.response?.data?.msg || err.message)
-      // showNotification('Failed to load cart ❌', 'error')
     } finally {
       setLoading(false)
     }
   }
 
-  // run once: read localStorage THEN fetch cart
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined') {
@@ -62,25 +449,20 @@ export default function CartComponent ({ onClose }) {
       }
     }
     init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // remove item
+  // Remove item
   const removeItem = async idx => {
     const item = items[idx]
     const updated = items.filter((_, i) => i !== idx)
     setItems(updated)
 
     if (userId && token) {
-      // Logged-in user: remove from backend
       try {
         const sizeParam =
           item.size && typeof item.size === 'object'
             ? JSON.stringify(item.size)
             : item.size || null
-
-        const colorParam = item.color || null
-        const measurementIdParam = item.measurementId || null
 
         const res = await axios.delete(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/${userId}/${
@@ -91,82 +473,25 @@ export default function CartComponent ({ onClose }) {
           {
             params: {
               size: sizeParam,
-              color: colorParam,
-              measurementId: measurementIdParam
+              color: item.color || null,
+              measurementId: item.measurementId || null
             },
             headers: { Authorization: `Bearer ${token}` }
           }
         )
-
         setItems(res.data.cart || [])
-        // showNotification(`${item.name} removed from cart 🗑️`, 'success')
       } catch (err) {
-        console.error('❌ Failed to remove item:', err.response?.data || err)
-        setItems(items) // rollback
-        // showNotification('Failed to remove item ❌', 'error')
+        console.error('Failed to remove item:', err)
+        setItems(items)
       }
     } else {
-      // Guest user: remove from localStorage
       localStorage.setItem('guestCart', JSON.stringify(updated))
-      // showNotification(`${item.name} removed from cart 🗑️`, 'success')
     }
   }
 
-  // Merge guest cart AND measurements to user account after login
-  const mergeGuestDataToUser = async (uid, tok) => {
-    // Merge guest cart
-    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
-
-    if (guestCart.length > 0) {
-      try {
-        for (const item of guestCart) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
-            { ...item, userId: uid },
-            { headers: { Authorization: `Bearer ${tok}` } }
-          )
-        }
-        localStorage.removeItem('guestCart')
-        console.log('✅ Guest cart merged successfully')
-      } catch (err) {
-        console.error('Failed to merge guest cart:', err)
-      }
-    }
-
-    // Merge guest measurements
-    const guestMeasurements = JSON.parse(
-      localStorage.getItem('customMeasurements') || '[]'
-    )
-
-    if (guestMeasurements.length > 0) {
-      try {
-        for (const measurement of guestMeasurements) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/measurements`,
-            { ...measurement, userId: uid },
-            { headers: { Authorization: `Bearer ${tok}` } }
-          )
-        }
-        localStorage.removeItem('customMeasurements')
-        console.log('✅ Guest measurements merged successfully')
-      } catch (err) {
-        console.error('Failed to merge guest measurements:', err)
-      }
-    }
-
-    if (guestCart.length > 0 || guestMeasurements.length > 0) {
-      // showNotification('Cart and measurements synced! 🎉', 'success')
-    }
-  }
-
-  // Merge guest cart to user account after login
+  // Merge guest cart to user
   const mergeGuestCartToUser = async (uid, tok) => {
-    const guestCart = JSON.parse(
-      localStorage.getItem('guestCart') ||
-        localStorage.getItem('customMeasurements') ||
-        '[]'
-    )
-
+    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
     if (guestCart.length > 0) {
       try {
         for (const item of guestCart) {
@@ -176,17 +501,14 @@ export default function CartComponent ({ onClose }) {
             { headers: { Authorization: `Bearer ${tok}` } }
           )
         }
-        // Clear guest cart after successful merge
         localStorage.removeItem('guestCart')
-        // showNotification('Cart items merged successfully! 🎉', 'success')
       } catch (err) {
         console.error('Failed to merge guest cart:', err)
-        // showNotification('Failed to merge cart items', 'error')
       }
     }
   }
 
-  // Handle login callback (call this after successful login)
+  // Handle post-login
   const handlePostLogin = async () => {
     const uid = localStorage.getItem('userId')
     const tok = localStorage.getItem('token')
@@ -194,14 +516,8 @@ export default function CartComponent ({ onClose }) {
     if (uid && tok) {
       setUserId(uid)
       setToken(tok)
-
-      // Merge guest cart to user account
       await mergeGuestCartToUser(uid, tok)
-
-      // Refresh cart from backend
       await fetchCart(uid, tok)
-
-      // Hide login prompt and  checkout
       setShowLoginPrompt(false)
       await initiateCheckout(uid, tok)
     }
@@ -209,12 +525,10 @@ export default function CartComponent ({ onClose }) {
 
   useEffect(() => {
     const redirect = localStorage.getItem('redirectAfterLogin')
-
     if (redirect === 'cart') {
       handlePostLogin()
       localStorage.removeItem('redirectAfterLogin')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const subtotal = items.reduce(
@@ -223,64 +537,65 @@ export default function CartComponent ({ onClose }) {
   )
   const isEmpty = items.length === 0
 
-  // Initiate checkout with payment intent
+  // Initiate checkout
   const initiateCheckout = async (uid, tok) => {
     try {
-      const payloadItems = items.map(item => {
-        const measurementSizes =
-          (item.measurementData && item.measurementData.values) ||
-          (item.size && typeof item.size === 'object' ? item.size : null)
-
-        return {
-          productId:
-            typeof item.productId === 'object'
-              ? item.productId._id
-              : item.productId,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image,
-          brand: item.brand,
-          size: item.size,
-          color: item.color,
-          measurementSizes,
-          measurementId: item.measurementId
-        }
-      })
+      const payloadItems = items.map(item => ({
+        productId:
+          typeof item.productId === 'object'
+            ? item.productId._id
+            : item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        brand: item.brand,
+        size: item.size,
+        color: item.color,
+        measurementId: item.measurementId
+      }))
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/create-payment-intent`,
         {
           items: payloadItems,
           userId: uid,
-          shippingAddress: null // or fetch from user profile
+          shippingAddress: null
         },
         { headers: { Authorization: `Bearer ${tok}` } }
       )
       setClientSecret(res.data.clientSecret)
     } catch (err) {
-      console.error('❌ Checkout error:', err.response?.data || err.message)
+      console.error('Checkout error:', err)
       alert(err.response?.data?.msg || 'Failed to start checkout')
     }
   }
 
-  // Handle checkout button click
+  // Handle checkout button
   const handleCheckout = async () => {
-    if (items.length === 0) {
-      // showNotification('Cart is empty 🛒', 'error')
-      return
-    }
+    if (items.length === 0) return
 
-    // Check if user is logged in
     if (!userId || !token) {
-      // Show login prompt for guest users
       setShowLoginPrompt(true)
-      // showNotification('Please login to proceed with checkout 🔐', 'info')
       return
     }
 
-    // User is logged in, proceed with checkout
     await initiateCheckout(userId, token)
+  }
+
+  // Render measurement summary
+  const renderMeasurementSummary = measurementObj => {
+    if (!measurementObj) return null
+    try {
+      const keys = Object.keys(measurementObj)
+      const preview = keys
+        .slice(0, 3)
+        .map(k => `${k}: ${measurementObj[k]}`)
+        .join(', ')
+      return `${preview}${keys.length > 3 ? '…' : ''}`
+    } catch {
+      return 'Custom'
+    }
   }
 
   if (loading) {
@@ -298,21 +613,6 @@ export default function CartComponent ({ onClose }) {
 
   if (error) return <p>Error: {error}</p>
 
-  // helper to render a compact measurement summary for display in cart
-  const renderMeasurementSummary = measurementObj => {
-    if (!measurementObj) return null
-    try {
-      const keys = Object.keys(measurementObj)
-      const preview = keys
-        .slice(0, 3)
-        .map(k => `${k}: ${measurementObj[k]}`)
-        .join(', ')
-      return `${preview}${keys.length > 3 ? '…' : ''}`
-    } catch {
-      return 'Custom'
-    }
-  }
-
   return (
     <div className='cart-overlay'>
       <div className='backdrop' onClick={onClose}></div>
@@ -320,133 +620,109 @@ export default function CartComponent ({ onClose }) {
         {!loading && isEmpty ? (
           <div className='empty-cart'>
             <p>No Order yet</p>
-            <button className='continue-btn' onClick={onClose}>
+            <button className='continue-shopping-btn' onClick={onClose}>
               Continue shopping
             </button>
           </div>
         ) : (
           <>
-            <div className='cart-items'>
-              <span className='cart-count'>Cart ({items.length})</span>
-              {items.map((item, idx) => {
-                const isMeasuredSize =
-                  item.size && typeof item.size === 'object'
-                const measurementSummary =
-                  item.measurementData?.values ||
-                  (isMeasuredSize ? item.size : null)
+            {!clientSecret && (
+              <div className='cart-items'>
+                <div className='cart-header-inline'>
+                  <span className='cart-count'>Cart ({items.length})</span>
+                  <button className='close-cart-btn' onClick={onClose}>
+                    ✕
+                  </button>
+                </div>
 
-                return (
-                  <div key={idx} className='cart-item'>
-                    <div className='item-image'>
-                      <img src={item.image} alt={item.name} />
-                    </div>
-                    <div className='item-info'>
-                      <div className='left'>
-                        <span className='item-qty-name'>
-                          ({item.quantity}×) {item.name}
-                        </span>
-                        <span className='item-color'>{item.brand}</span>
-                        <span className='item-size'>
-                          {isMeasuredSize ? (
-                            `Custom (${renderMeasurementSummary(
-                              measurementSummary
-                            )})`
-                          ) : item.size ? (
-                            item.size
-                          ) : item.initials ? (
-                            <span
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                              }}
-                            >
-                              Initials:
-                              {item.initials}
-                            </span>
-                          ) : (
-                            ''
-                          )}
-                        </span>
+                {items.map((item, idx) => {
+                  const isMeasuredSize =
+                    item.size && typeof item.size === 'object'
+                  const measurementSummary =
+                    item.measurementData?.values ||
+                    (isMeasuredSize ? item.size : null)
+
+                  return (
+                    <div key={idx} className='cart-item'>
+                      <div className='item-image'>
+                        <img src={item.image} alt={item.name} />
                       </div>
-                      <div className='right'>
-                        ${(item.price * item.quantity).toLocaleString()}
+                      <div className='item-info'>
+                        <div className='left'>
+                          <span className='item-qty-name'>
+                            ({item.quantity}×) {item.name}
+                          </span>
+                          <span className='item-brand'>{item.brand}</span>
+                          <span className='item-size'>
+                            {isMeasuredSize
+                              ? `Custom (${renderMeasurementSummary(
+                                  measurementSummary
+                                )})`
+                              : item.size || ''}
+                          </span>
+                        </div>
+                        <div className='right'>
+                          ${(item.price * item.quantity).toLocaleString()}
+                        </div>
                       </div>
+                      <button
+                        className='delete-btn'
+                        onClick={() => removeItem(idx)}
+                      >
+                        Delete
+                      </button>
                     </div>
-                    <button
-                      className='delete-btn'
-                      onClick={() => removeItem(idx)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )}
 
             <div className='cart-footer'>
-              <div className='subtotal'>
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString()}</span>
-              </div>
-
-              {/* Login Prompt */}
-              {showLoginPrompt && (
-                <div
-                  className='login-prompt'
-                  style={{
-                    padding: '15px',
-                    marginBottom: '15px',
-                    backgroundColor: '#f0f9ff',
-                    // borderRadius: '8px',
-                    border: '1px solid #000'
-                  }}
-                >
-                  <p style={{ marginBottom: '10px', color: '#000' }}>
-                    submit and verify email to complete checkout
-                  </p>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        color: 'white',
-                        backgroundColor: '#000',
-                        border: 'none',
-                        // borderRadius: '6px',
-                        cursor: 'pointer',
-                        textAlign: 'center'
-                      }}
-                      onClick={() => {
-                        localStorage.setItem('redirectAfterLogin', 'cart')
-                        window.location.href = '/auth/login' // or use your login route
-                      }}
-                    >
-                      Login
-                    </div>
+              {!clientSecret && (
+                <>
+                  <div className='subtotal'>
+                    <span>Subtotal</span>
+                    <span>${subtotal.toLocaleString()}</span>
                   </div>
-                </div>
+
+                  {showLoginPrompt && (
+                    <div className='login-prompt'>
+                      <p>Submit and verify email to complete checkout</p>
+                      <button
+                        className='login-btn'
+                        onClick={() => {
+                          localStorage.setItem('redirectAfterLogin', 'cart')
+                          window.location.href = '/auth/login'
+                        }}
+                      >
+                        Login
+                      </button>
+                    </div>
+                  )}
+
+                  <button className='checkout-btn' onClick={handleCheckout}>
+                    Checkout
+                  </button>
+                </>
               )}
 
-              {clientSecret ? (
+              {clientSecret && (
                 <Elements stripe={stripePromise}>
-                  <CheckoutForm
+                  <EnhancedCheckoutForm
                     clientSecret={clientSecret}
+                    userId={userId}
+                    token={token}
+                    items={items}
                     onSuccess={pi => {
-                      // showNotification('Payment successful 🎉', 'success')
                       setClientSecret(null)
-                      // Clear cart after successful payment
                       if (!userId) {
                         localStorage.removeItem('guestCart')
                       }
+                      alert('Order placed successfully! 🎉')
                       onClose()
                     }}
                   />
                 </Elements>
-              ) : (
-                <button className='checkout-btn' onClick={handleCheckout}>
-                  checkout
-                </button>
               )}
             </div>
           </>
