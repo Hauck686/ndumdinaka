@@ -11,25 +11,45 @@ const archivoBlack = Archivo_Black({
 export const metadata = {
   title: 'NAKACHI NDUMDI',
   description:
-    'NAKACHI NDUMDI offers premium fashion, custom designs, ready-to-wear outfits and fast nationwide delivery in .',
+    'NAKACHI NDUMDI was founded in 2021 by Walter Ndumdinakachi Ogbonna. Rooted in precise, refined menswear tailoring. Discover new volumes in ready-to-wear, footwear,bags and accessories. .',
   keywords: [
     'NAKACHI NDUMDI',
-    'online fashion store ',
-    'custom clothing',
+    'Walter Ndumdinakachi Ogbonna ',
+    'refined menswear tailoring',
     'ready-to-wear outfits',
     'mens fashion',
     'womens fashion',
-    'affordable fashion '
+    'affordable fashion',
+    'menswear',
+    'custom jackets',
+    'custom tailoring',
+    'luxury shoes',
+    'bespoke shoes',
+    'bespoke clothing',
+    'refined tailoring',
+    'leather jackets',
+    'men’s bag',
+    'luxury bags',
+    'leather pants',
+    'Selvedge denim',
+    'designer blazers',
+    'designer bespoke',
+    'luxury bespoke',
+    'custom leather jacket',
+    'bespoke blazer',
+    'made to measure',
+    'high end leather',
+    'high end fashion'
   ],
-  metadataBase: new URL('http://nakachindumdi.com'),
+  metadataBase: new URL('http://www.nakachindumdi.com'),
   alternates: {
     canonical: '/'
   },
   openGraph: {
     title: 'NAKACHI NDUMDI',
     description:
-      'NAKACHI NDUMDI offers premium fashion, custom designs, ready-to-wear outfits and fast nationwide delivery in.',
-    url: 'http://nakachindumdi.com',
+      'NAKACHI NDUMDI was founded in 2021 by Walter Ndumdinakachi Ogbonna. Rooted in precise, refined menswear tailoring. Discover new volumes in ready-to-wear, footwear,bags and accessories..',
+    url: 'http://www.nakachindumdi.com',
     siteName: 'NAKACHI NDUMDI',
     images: [
       {
@@ -46,7 +66,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'NAKACHI NDUMDI',
     description:
-      'NAKACHI NDUMDI offers premium fashion, custom designs, ready-to-wear outfits and fast nationwide delivery in.',
+      'NAKACHI NDUMDI was founded in 2021 by Walter Ndumdinakachi Ogbonna. Rooted in precise, refined menswear tailoring. Discover new volumes in ready-to-wear, footwear,bags and accessories..',
     images: ['https://i.postimg.cc/nzKWPzFJ/logo.png']
   },
   icons: {

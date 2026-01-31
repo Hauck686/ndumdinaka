@@ -79,7 +79,7 @@ export default function AddedToCartPreview ({
 
             <div className='acp-actions'>
               <button className='acp-viewbag' onClick={onClose}>
-                continue shopping
+                Continue
               </button>
             </div>
           </motion.div>
