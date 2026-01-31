@@ -18,7 +18,8 @@ function EnhancedCheckoutForm ({
   onSuccess,
   userId,
   token,
-  items
+  items,
+  isGuest
 }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -27,7 +28,7 @@ function EnhancedCheckoutForm ({
   const [error, setError] = useState(null)
   const [checkoutStep, setCheckoutStep] = useState('shipping') // 'shipping' | 'payment'
 
-  // Shipping form state
+  // Shipping form state - PASSWORD REMOVED
   const [shippingData, setShippingData] = useState({
     firstName: '',
     lastName: '',
@@ -41,14 +42,13 @@ function EnhancedCheckoutForm ({
     country: 'United States'
   })
 
-  // Load saved address if available
+  // Load saved address if available (only for logged-in users)
   useEffect(() => {
     const loadUserProfile = async () => {
-      if (userId && token) {
+      if (userId && token && !isGuest) {
         try {
           const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/profile`,
-            { headers: { Authorization: `Bearer ${token}` } }
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/profile`
           )
 
           // Load from addresses array if exists
@@ -86,7 +86,7 @@ function EnhancedCheckoutForm ({
       }
     }
     loadUserProfile()
-  }, [userId, token])
+  }, [userId, token, isGuest])
 
   const handleShippingChange = e => {
     setShippingData({ ...shippingData, [e.target.name]: e.target.value })
@@ -115,6 +115,8 @@ function EnhancedCheckoutForm ({
       setError('Please enter a valid email address')
       return false
     }
+
+    // PASSWORD VALIDATION REMOVED
 
     setError(null)
     return true
@@ -178,20 +180,28 @@ function EnhancedCheckoutForm ({
       }
 
       // Payment succeeded - now complete the order on backend
-      await axios.post(
+      // PASSWORD REMOVED from request body
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
         {
           userId,
           items,
           shippingAddress: shippingData,
           paymentIntentId: paymentIntent.id,
-          totalAmount: paymentIntent.amount / 100
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+          totalAmount: paymentIntent.amount / 100,
+          isGuestCheckout: isGuest
+        }
       )
 
       console.log('✅ Order completed successfully')
-      onSuccess(paymentIntent)
+
+      // If guest checkout, store new user credentials
+      if (isGuest && response.data.newUserData) {
+        localStorage.setItem('userId', response.data.newUserData.userId)
+        localStorage.setItem('token', response.data.newUserData.token)
+      }
+
+      onSuccess(paymentIntent, response.data)
     } catch (err) {
       console.error('Payment error:', err)
       setError(err.response?.data?.msg || err.message || 'Payment failed')
@@ -304,6 +314,16 @@ function EnhancedCheckoutForm ({
           />
         </div>
 
+        {/* PASSWORD SECTION REMOVED FOR GUESTS */}
+        {isGuest && (
+          <div className='form-section'>
+            <p
+              className='form-hint'
+              style={{ fontSize: '14px', color: '#666' }}
+            ></p>
+          </div>
+        )}
+
         {error && <div className='error-message'>{error}</div>}
 
         <button type='submit' className='continue-btn'>
@@ -407,21 +427,25 @@ export default function CartComponent ({ onClose }) {
   const [token, setToken] = useState(null)
   const [userId, setUserId] = useState(null)
   const [clientSecret, setClientSecret] = useState(null)
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [isGuest, setIsGuest] = useState(true)
 
   // Load from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setUserId(localStorage.getItem('userId'))
-      setToken(localStorage.getItem('token'))
+      const storedUserId = localStorage.getItem('userId')
+      const storedToken = localStorage.getItem('token')
+
+      setUserId(storedUserId)
+      setToken(storedToken)
+      setIsGuest(!storedUserId)
     }
   }, [])
 
   // Fetch cart
-  const fetchCart = async (uid, tok) => {
+  const fetchCart = async (uid, tok, isGuestUser) => {
     setLoading(true)
     try {
-      if (uid && tok) {
+      if (uid && tok && !isGuestUser) {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/${uid}`,
           { headers: { Authorization: `Bearer ${tok}` } }
@@ -443,9 +467,12 @@ export default function CartComponent ({ onClose }) {
       if (typeof window !== 'undefined') {
         const uid = localStorage.getItem('userId')
         const tok = localStorage.getItem('token')
+        const isGuestUser = !uid || !tok
+
         setUserId(uid)
         setToken(tok)
-        await fetchCart(uid, tok)
+        setIsGuest(isGuestUser)
+        await fetchCart(uid, tok, isGuestUser)
       }
     }
     init()
@@ -457,7 +484,7 @@ export default function CartComponent ({ onClose }) {
     const updated = items.filter((_, i) => i !== idx)
     setItems(updated)
 
-    if (userId && token) {
+    if (userId && token && !isGuest) {
       try {
         const sizeParam =
           item.size && typeof item.size === 'object'
@@ -508,29 +535,6 @@ export default function CartComponent ({ onClose }) {
     }
   }
 
-  // Handle post-login
-  const handlePostLogin = async () => {
-    const uid = localStorage.getItem('userId')
-    const tok = localStorage.getItem('token')
-
-    if (uid && tok) {
-      setUserId(uid)
-      setToken(tok)
-      await mergeGuestCartToUser(uid, tok)
-      await fetchCart(uid, tok)
-      setShowLoginPrompt(false)
-      await initiateCheckout(uid, tok)
-    }
-  }
-
-  useEffect(() => {
-    const redirect = localStorage.getItem('redirectAfterLogin')
-    if (redirect === 'cart') {
-      handlePostLogin()
-      localStorage.removeItem('redirectAfterLogin')
-    }
-  }, [])
-
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -538,7 +542,7 @@ export default function CartComponent ({ onClose }) {
   const isEmpty = items.length === 0
 
   // Initiate checkout
-  const initiateCheckout = async (uid, tok) => {
+  const initiateCheckout = async (uid, tok, isGuestCheckout) => {
     try {
       const payloadItems = items.map(item => ({
         productId:
@@ -560,9 +564,9 @@ export default function CartComponent ({ onClose }) {
         {
           items: payloadItems,
           userId: uid,
-          shippingAddress: null
-        },
-        { headers: { Authorization: `Bearer ${tok}` } }
+          shippingAddress: null,
+          isGuestCheckout
+        }
       )
       setClientSecret(res.data.clientSecret)
     } catch (err) {
@@ -575,12 +579,7 @@ export default function CartComponent ({ onClose }) {
   const handleCheckout = async () => {
     if (items.length === 0) return
 
-    if (!userId || !token) {
-      setShowLoginPrompt(true)
-      return
-    }
-
-    await initiateCheckout(userId, token)
+    await initiateCheckout(userId, token, isGuest)
   }
 
   // Render measurement summary
@@ -685,21 +684,6 @@ export default function CartComponent ({ onClose }) {
                     <span>${subtotal.toLocaleString()}</span>
                   </div>
 
-                  {showLoginPrompt && (
-                    <div className='login-prompt'>
-                      <p>Submit and verify email to complete checkout</p>
-                      <button
-                        className='login-btn'
-                        onClick={() => {
-                          localStorage.setItem('redirectAfterLogin', 'cart')
-                          window.location.href = '/auth/login'
-                        }}
-                      >
-                        Login
-                      </button>
-                    </div>
-                  )}
-
                   <button className='checkout-btn' onClick={handleCheckout}>
                     Checkout
                   </button>
@@ -713,9 +697,10 @@ export default function CartComponent ({ onClose }) {
                     userId={userId}
                     token={token}
                     items={items}
-                    onSuccess={pi => {
+                    isGuest={isGuest}
+                    onSuccess={(pi, orderData) => {
                       setClientSecret(null)
-                      if (!userId) {
+                      if (isGuest) {
                         localStorage.removeItem('guestCart')
                       }
                       alert('Order placed successfully! 🎉')
