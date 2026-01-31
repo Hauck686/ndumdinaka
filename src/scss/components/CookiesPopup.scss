@@ -1,52 +1,59 @@
+// Cookie Popup Styles - Desktop & Mobile
+
 .cookies-popup {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: #fff;
   color: #000;
-  padding: 1.2rem 1.5rem;
-  z-index: 9999;
-  animation: slideUp 0.4s ease-in-out;
-  display: flex;
-  justify-content: center;
-  border: 1px solid #000;
-}
+  padding: 2.5rem;
+  z-index: 10009;
+  max-width: 650px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.4s ease-in-out;
 
-.cookies-container {
-  padding: 1rem 1.5rem;
-  max-width: 900px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    color: #000;
+    font-weight: 600;
+  }
 
   p {
-    flex: 1 1 600px;
-    font-size: 0.9rem;
-    line-height: 1.4rem;
-    margin: 0;
-    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: #333;
 
     a {
       color: #000;
       text-decoration: underline;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: none;
+      }
     }
   }
 
   .cookies-actions {
     display: flex;
-    gap: 0.8rem;
-    width: 100%;
-    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
   }
 
   button {
+    flex: 1;
     border: none;
-    padding: 0.6rem 1.2rem;
+    padding: 0.875rem 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .accept-btn {
@@ -54,19 +61,101 @@
     color: #fff;
 
     &:hover {
-      background: #e5e5e5;
+      background: #333;
     }
   }
 
-  .decline-btn {
-    background: #000;
-    border: 1px solid #000;
-    color: #fff;
+  .settings-btn {
+    background: transparent;
+    border: 2px solid #000 !important;
+    color: #000;
 
     &:hover {
-      background: #fff;
-      color: #000;
+      background: #f5f5f5;
     }
+  }
+}
+
+// Overlay for desktop centered popup
+.cookie-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: oklab(77.08500000000001% 0.00543 0.0016 / 0.5);
+  z-index: 19998;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+  .cookies-popup {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    transform: none;
+    max-width: 100%;
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: 0;
+    animation: slideUp 0.4s ease-in-out;
+    position: fixed;
+    bottom: 180px;
+    margin: 11px;
+    left: -10px;
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .cookies-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.875rem 1rem;
+    }
+
+    // Mobile has a "Continue without Accepting" link at top
+    .continue-link {
+      display: block;
+      text-align: right;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      text-decoration: underline;
+      color: #666;
+      cursor: pointer;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  // Hide overlay on mobile (bottom sheet style)
+  .cookie-overlay {
+    display: block;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

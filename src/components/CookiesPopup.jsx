@@ -38,25 +38,28 @@ export default function CookiesPopup () {
   if (!showPopup) return null
 
   return (
-    <div className='cookies-popup'>
-      <div className='cookies-container'>
-        <p>
-          We use cookies to enhance your browsing experience, serve personalized
-          content, and analyze our traffic. By clicking “Accept”, you consent to
-          our use of cookies. For more information, please read our{' '}
-          <a href='/privacy-policy' target='_blank'>
-            privacy policy
-          </a>
-          .
-        </p>
+    <div className='cookie-overlay'>
+      <div className='cookies-popup'>
+        <div className='cookies-container'>
+          <p>
+            We use cookies to enhance your browsing experience, serve
+            personalized content, and analyze our traffic. By clicking “Accept”,
+            you consent to our use of cookies. For more information, please read
+            our{' '}
+            <a href='/privacy-policy' target='_blank'>
+              privacy policy
+            </a>
+            .
+          </p>
 
-        <div className='cookies-actions'>
-          <button className='accept-btn' onClick={handleAccept}>
-            Accept
-          </button>
-          <button className='decline-btn' onClick={handleDecline}>
-            Decline
-          </button>
+          <div className='cookies-actions'>
+            <button className='accept-btn' onClick={handleAccept}>
+              Accept
+            </button>
+            <button className='decline-btn' onClick={handleDecline}>
+              Decline
+            </button>
+          </div>
         </div>
       </div>
     </div>
