@@ -326,7 +326,7 @@ export default function ProductDetailsPage () {
 
       processingMeasurementIdsRef.current.add(measurementId)
 
-      // 🔥 ADD CUSTOM MEASUREMENT FEE (₦250)
+      // ADD CUSTOM MEASUREMENT FEE (₦250)
       priceToCharge += 250
 
       const cartItem = {

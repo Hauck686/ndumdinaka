@@ -9,6 +9,7 @@ import {
 } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import SkeletonProductCard from '../SkeletonProductCard'
+import OrderSuccessfulPopup from '../OrderSuccessfulPopup'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
@@ -703,7 +704,12 @@ export default function CartComponent ({ onClose }) {
                       if (isGuest) {
                         localStorage.removeItem('guestCart')
                       }
-                      alert('Order placed successfully! 🎉')
+                      ;<OrderSuccessfulPopup
+                        isGuest={isGuest}
+                        isOpen={true}
+                        onClose={onClose}
+                      />
+
                       onClose()
                     }}
                   />

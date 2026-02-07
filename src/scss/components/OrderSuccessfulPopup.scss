@@ -1,0 +1,106 @@
+.order-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.order-popup {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  //   border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  animation: popupFade 0.35s ease-in-out;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  @media (min-width: 768px) {
+    padding: 2.5rem 2rem;
+  }
+}
+
+.icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: #e7f9f0;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .checkmark {
+    font-size: 36px;
+    color: #16a34a;
+    font-weight: bold;
+  }
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.message {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.order-id {
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 1rem;
+
+  span {
+    font-weight: 600;
+  }
+}
+
+.guest-note {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 1.25rem;
+}
+
+.actions {
+  margin-top: 1.5rem;
+
+  .primary-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    // border-radius: 10px;
+    border: none;
+    background: #000000;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #000000;
+    }
+  }
+}
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
