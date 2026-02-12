@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Elements,
   CardElement,
+  PaymentRequestButtonElement,
   useStripe,
   useElements
 } from '@stripe/react-stripe-js'
@@ -13,7 +14,7 @@ import OrderSuccessfulPopup from '../OrderSuccessfulPopup'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
-// Enhanced Checkout Form with Address Collection
+// Enhanced Checkout Form with Address Collection - SINGLE PAGE
 function EnhancedCheckoutForm ({
   clientSecret,
   onSuccess,
@@ -27,9 +28,9 @@ function EnhancedCheckoutForm ({
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState(null)
-  const [checkoutStep, setCheckoutStep] = useState('shipping') // 'shipping' | 'payment'
+  const [paymentRequest, setPaymentRequest] = useState(null)
 
-  // Shipping form state - PASSWORD REMOVED
+  // Shipping form state
   const [shippingData, setShippingData] = useState({
     firstName: '',
     lastName: '',
@@ -89,6 +90,100 @@ function EnhancedCheckoutForm ({
     loadUserProfile()
   }, [userId, token, isGuest])
 
+  // Initialize Payment Request for Google Pay and Apple Pay
+  useEffect(() => {
+    if (!stripe) return
+
+    const pr = stripe.paymentRequest({
+      country: 'US',
+      currency: 'usd',
+      total: {
+        label: 'Order Total',
+        amount: Math.round(
+          items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100
+        )
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+      requestPayerPhone: true,
+      requestShipping: true,
+      shippingOptions: [
+        {
+          id: 'standard',
+          label: 'Standard Shipping',
+          detail: '5-7 business days',
+          amount: 0
+        }
+      ]
+    })
+
+    // Check if payment request is available
+    pr.canMakePayment().then(result => {
+      if (result) {
+        setPaymentRequest(pr)
+
+        // Handle payment request
+        pr.on('paymentmethod', async event => {
+          try {
+            // Confirm payment with Stripe
+            const { error: stripeError, paymentIntent } =
+              await stripe.confirmCardPayment(clientSecret, {
+                payment_method: event.paymentMethod.id
+              })
+
+            if (stripeError) {
+              event.complete('fail')
+              setError(stripeError.message)
+              return
+            }
+
+            // Extract shipping info from payment request
+            const shippingAddress = event.shippingAddress
+            const payerName = event.payerName?.split(' ') || ['', '']
+
+            // Complete order on backend
+            const response = await axios.post(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
+              {
+                userId,
+                items,
+                shippingAddress: {
+                  firstName: payerName[0],
+                  lastName: payerName.slice(1).join(' '),
+                  email: event.payerEmail,
+                  phone: event.payerPhone,
+                  address: shippingAddress?.addressLine?.[0] || '',
+                  apartment: shippingAddress?.addressLine?.[1] || '',
+                  city: shippingAddress?.city || '',
+                  state: shippingAddress?.region || '',
+                  postcode: shippingAddress?.postalCode || '',
+                  country: shippingAddress?.country || 'US'
+                },
+                paymentIntentId: paymentIntent.id,
+                totalAmount: paymentIntent.amount / 100,
+                isGuestCheckout: isGuest
+              }
+            )
+
+            event.complete('success')
+            console.log('✅ Order completed successfully via Payment Request')
+
+            if (isGuest && response.data.newUserData) {
+              localStorage.setItem('userId', response.data.newUserData.userId)
+              localStorage.setItem('token', response.data.newUserData.token)
+            }
+
+            onSuccess(paymentIntent, response.data)
+          } catch (err) {
+            event.complete('fail')
+            console.error('Payment error:', err)
+            setError(err.response?.data?.msg || err.message || 'Payment failed')
+          }
+        })
+      }
+    })
+  }, [stripe, items, clientSecret, userId, isGuest, onSuccess])
+
   const handleShippingChange = e => {
     setShippingData({ ...shippingData, [e.target.name]: e.target.value })
   }
@@ -117,23 +212,19 @@ function EnhancedCheckoutForm ({
       return false
     }
 
-    // PASSWORD VALIDATION REMOVED
-
     setError(null)
     return true
-  }
-
-  const handleShippingSubmit = e => {
-    e.preventDefault()
-    if (validateShipping()) {
-      setCheckoutStep('payment')
-    }
   }
 
   const handlePaymentSubmit = async e => {
     e.preventDefault()
 
     if (!stripe || !elements) return
+
+    // Validate shipping first
+    if (!validateShipping()) {
+      return
+    }
 
     setProcessing(true)
     setError(null)
@@ -181,7 +272,6 @@ function EnhancedCheckoutForm ({
       }
 
       // Payment succeeded - now complete the order on backend
-      // PASSWORD REMOVED from request body
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
         {
@@ -211,160 +301,109 @@ function EnhancedCheckoutForm ({
     }
   }
 
-  // Shipping Address Form
-  if (checkoutStep === 'shipping') {
-    return (
-      <form
-        className='checkout-form shipping-form'
-        onSubmit={handleShippingSubmit}
-      >
-        <div className='form-section'>
-          <h3 className='section-title'>Contact</h3>
-          <input
-            type='email'
-            name='email'
-            placeholder='Email'
-            value={shippingData.email}
-            onChange={handleShippingChange}
-            required
-            className='form-input'
-          />
-        </div>
-
-        <div className='form-section'>
-          <h3 className='section-title'>Delivery</h3>
-
-          <div className='form-row'>
-            <input
-              type='text'
-              name='firstName'
-              placeholder='First name'
-              value={shippingData.firstName}
-              onChange={handleShippingChange}
-              required
-              className='form-input'
-            />
-            <input
-              type='text'
-              name='lastName'
-              placeholder='Last name'
-              value={shippingData.lastName}
-              onChange={handleShippingChange}
-              required
-              className='form-input'
-            />
-          </div>
-
-          <input
-            type='text'
-            name='address'
-            placeholder='Address'
-            value={shippingData.address}
-            onChange={handleShippingChange}
-            required
-            className='form-input'
-          />
-
-          <input
-            type='text'
-            name='apartment'
-            placeholder='Apartment, suite, etc. (optional)'
-            value={shippingData.apartment}
-            onChange={handleShippingChange}
-            className='form-input'
-          />
-
-          <div className='form-row'>
-            <input
-              type='text'
-              name='city'
-              placeholder='City'
-              value={shippingData.city}
-              onChange={handleShippingChange}
-              required
-              className='form-input'
-            />
-            <input
-              type='text'
-              name='state'
-              placeholder='State'
-              value={shippingData.state}
-              onChange={handleShippingChange}
-              className='form-input'
-            />
-          </div>
-
-          <input
-            type='text'
-            name='postcode'
-            placeholder='Postcode'
-            value={shippingData.postcode}
-            onChange={handleShippingChange}
-            required
-            className='form-input'
-          />
-
-          <input
-            type='tel'
-            name='phone'
-            placeholder='Phone'
-            value={shippingData.phone}
-            onChange={handleShippingChange}
-            required
-            className='form-input'
-          />
-        </div>
-
-        {/* PASSWORD SECTION REMOVED FOR GUESTS */}
-        {isGuest && (
-          <div className='form-section'>
-            <p
-              className='form-hint'
-              style={{ fontSize: '14px', color: '#666' }}
-            ></p>
-          </div>
-        )}
-
-        {error && <div className='error-message'>{error}</div>}
-
-        <button type='submit' className='continue-btn'>
-          Continue to payment
-        </button>
-      </form>
-    )
-  }
-
-  // Payment Form
+  // Single Page Checkout Form - All sections visible
   return (
     <form className='checkout-form payment-form' onSubmit={handlePaymentSubmit}>
-      {/* Shipping Summary */}
+      {/* CONTACT SECTION */}
       <div className='form-section'>
-        <div className='section-header'>
-          <h3 className='section-title'>Shipping address</h3>
-          <button
-            type='button'
-            className='edit-btn'
-            onClick={() => setCheckoutStep('shipping')}
-          >
-            Edit
-          </button>
-        </div>
-        <div className='address-summary'>
-          <p>
-            {shippingData.firstName} {shippingData.lastName}
-          </p>
-          <p>{shippingData.address}</p>
-          {shippingData.apartment && <p>{shippingData.apartment}</p>}
-          <p>
-            {shippingData.city}
-            {shippingData.state && `, ${shippingData.state}`}{' '}
-            {shippingData.postcode}
-          </p>
-          <p>{shippingData.phone}</p>
-        </div>
+        <h3 className='section-title'>Contact</h3>
+        <input
+          type='email'
+          name='email'
+          placeholder='Email'
+          value={shippingData.email}
+          onChange={handleShippingChange}
+          required
+          className='form-input'
+        />
       </div>
 
-      {/* Payment Method */}
+      {/* SHIPPING INFORMATION SECTION */}
+      <div className='form-section'>
+        <h3 className='section-title'>Shipping Information</h3>
+
+        <div className='form-row'>
+          <input
+            type='text'
+            name='firstName'
+            placeholder='First name'
+            value={shippingData.firstName}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+          <input
+            type='text'
+            name='lastName'
+            placeholder='Last name'
+            value={shippingData.lastName}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+        </div>
+
+        <input
+          type='text'
+          name='address'
+          placeholder='Address'
+          value={shippingData.address}
+          onChange={handleShippingChange}
+          required
+          className='form-input'
+        />
+
+        <input
+          type='text'
+          name='apartment'
+          placeholder='Apartment, suite, etc. (optional)'
+          value={shippingData.apartment}
+          onChange={handleShippingChange}
+          className='form-input'
+        />
+
+        <div className='form-row'>
+          <input
+            type='text'
+            name='city'
+            placeholder='City'
+            value={shippingData.city}
+            onChange={handleShippingChange}
+            required
+            className='form-input'
+          />
+          <input
+            type='text'
+            name='state'
+            placeholder='State'
+            value={shippingData.state}
+            onChange={handleShippingChange}
+            className='form-input'
+          />
+        </div>
+
+        <input
+          type='text'
+          name='postcode'
+          placeholder='Postcode'
+          value={shippingData.postcode}
+          onChange={handleShippingChange}
+          required
+          className='form-input'
+        />
+
+        <input
+          type='tel'
+          name='phone'
+          placeholder='Phone'
+          value={shippingData.phone}
+          onChange={handleShippingChange}
+          required
+          className='form-input'
+        />
+      </div>
+
+      {/* PAYMENT SECTION */}
       <div className='form-section'>
         <h3 className='section-title'>Payment</h3>
         <p className='secure-text'>
@@ -404,6 +443,31 @@ function EnhancedCheckoutForm ({
               }}
             />
           </div>
+
+          {/* Google Pay and Apple Pay Button */}
+          {paymentRequest && (
+            <div style={{ marginTop: '20px' }}>
+              <div
+                style={{
+                  textAlign: 'center',
+                  margin: '15px 0',
+                  fontSize: '12px',
+                  color: '#999'
+                }}
+              >
+                or pay with
+              </div>
+              <PaymentRequestButtonElement
+                options={{ paymentRequest }}
+                style={{
+                  paymentRequestButton: {
+                    theme: 'dark',
+                    height: '40px'
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
