@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNotification } from '@/app/context/NotificationContext'
 import SkeletonProductCard from '@/components/SkeletonProductCard'
 import AddedToCartPreview from '@/components/products/AddedToCartPreview'
+import Markdown from 'react-markdown'
 
 export default function ProductDetailsPage () {
   const { id } = useParams()
@@ -859,36 +860,43 @@ export default function ProductDetailsPage () {
               )}
 
             {/* DESCRIPTION */}
-            <div className='accordion-item'>
-              <div
-                className='accordion-title'
-                onClick={() => toggleDropdown('description')}
-              >
-                <span>
-                  <span style={{ textTransform: 'capitalize' }}>
-                    {product.name}
-                  </span>
-                  <span style={{ textTransform: 'capitalize' }}>
-                    {product.description}
-                  </span>
+            {product.description && (
+              <div className='product-info-section'>
+                <span
+                  style={{ textTransform: 'capitalize', marginTop: '15px' }}
+                >
+                  Description
                 </span>
+                <p
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.8',
+
+                    fontSize: '14px'
+                  }}
+                >
+                  {product.description}
+                </p>
               </div>
-            </div>
+            )}
 
             {/* DETAILS */}
-            <div className='accordion-item'>
-              <div
-                className='accordion-title'
-                onClick={() => toggleDropdown('info')}
-              >
-                <span>
-                  <span>Details</span>
-                  <span style={{ textTransform: 'capitalize' }}>
-                    {product.brand}
-                  </span>
-                </span>
+            {(product.details || product.brand) && (
+              <div className='product-info-section'>
+                <span style={{ marginTop: '15px' }}>Details</span>
+                <p
+                  style={{
+                    fontSize: '14px',
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.8',
+                    marginBottom: '15px'
+                  }}
+                >
+                  {product.details || product.brand}
+                </p>
               </div>
-            </div>
+            )}
+
             {/* NEED HELP */}
             <div className='accordion-item'>
               <div
@@ -898,8 +906,13 @@ export default function ProductDetailsPage () {
                 <span>
                   <span>Do you need help? </span>
                   <span>
-                    Contact us 0000 000 0000 Or, Email Us
-                    Support@nakachindumdi.com
+                    Contact us <a href='tel:+00000000000000'> 0000 000 0000</a>{' '}
+                    Or, <br />
+                    Email Us{' '}
+                    <a href='mailto:Support@nakachindumdi.com'>
+                      {' '}
+                      Support@nakachindumdi.com
+                    </a>
                   </span>
                 </span>
               </div>
