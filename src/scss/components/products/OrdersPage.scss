@@ -21,7 +21,7 @@
 
 .order-card {
   background: var(--card-bg, #fff);
-  border-radius: 1.25rem;
+  //border-radius: 1.25rem;
   padding: 1.25rem 1.5rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.25s ease;
@@ -116,7 +116,7 @@
 
   &:hover {
     background: rgba(0, 0, 0, 0.02);
-    border-radius: 0.75rem;
+    //border-radius: 0.75rem;
     padding: 0.8rem;
   }
 
@@ -124,7 +124,7 @@
     width: 64px;
     height: 64px;
     object-fit: cover;
-    border-radius: 0.75rem;
+    //border-radius: 0.75rem;
     border: 1px solid rgba(0, 0, 0, 0.05);
   }
 
@@ -155,7 +155,7 @@
 .status,
 .repay-btn {
   padding: 0.35rem 0.9rem;
-  border-radius: 50px;
+  //border-radius: 50px;
   font-size: 0.8rem;
   // 600;
   text-transform: capitalize;

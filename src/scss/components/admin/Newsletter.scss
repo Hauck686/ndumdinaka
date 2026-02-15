@@ -26,55 +26,55 @@
   /* === Table Container === */
   .table-wrapper {
     background: #fff;
-    border-radius: 16px;
+    //border-radius: 16px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     overflow-x: auto;
   }
 
-  // table {
-  //   width: 100%;
-  //   border-collapse: collapse;
-  //   font-size: 0.95rem;
-  //   min-width: 700px;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 700px;
 
-  //   thead {
-  //     background: #f3f4f6;
-  //     text-align: left;
+    thead {
+      background: #f3f4f6;
+      text-align: left;
 
-  //     th {
-  //       padding: 1rem 1.5rem;
-  //       font-size: 0.85rem;
-  //       letter-spacing: 0.03em;
-  //       color: #374151;
-  //     }
-  //   }
+      th {
+        padding: 1rem 1.5rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+        color: #374151;
+      }
+    }
 
-  //   tbody {
-  //     tr {
-  //       transition: background 0.2s ease;
+    tbody {
+      tr {
+        transition: background 0.2s ease;
 
-  //       &:nth-child(even) {
-  //         background: #fafafa;
-  //       }
+        &:nth-child(even) {
+          background: #fafafa;
+        }
 
-  //       &:hover {
-  //         background: #f1f5f9;
-  //       }
-  //     }
+        &:hover {
+          background: #f1f5f9;
+        }
+      }
 
-  //     td {
-  //       padding: 1rem 1.5rem;
-  //       border-top: 1px solid #e5e7eb;
-  //       vertical-align: middle;
+      td {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        vertical-align: middle;
 
-  //       &:first-child {
-  //         // 600;
-  //         color: #111827;
-  //       }
-  //     }
-  //   }
-  // }
+        &:first-child {
+          // 600;
+          color: #111827;
+        }
+      }
+    }
+  }
 
   /* === Status Indicators (✅ ❌) === */
   .status {
@@ -109,7 +109,7 @@
         display: block;
         margin-bottom: 1.2rem;
         border: 1px solid #e5e7eb;
-        border-radius: 12px;
+        //border-radius: 12px;
         background: #fff;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }

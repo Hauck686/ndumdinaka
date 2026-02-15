@@ -228,7 +228,7 @@
       width: 80%;
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
       background-size: 400% 100%;
-      border-radius: 4px;
+      //border-radius: 4px;
       margin: 0.5rem 0;
       animation: shimmer 1.4s ease infinite;
     }
@@ -306,7 +306,7 @@
   width: 100%;
   max-width: 800px; // Added max-width for better UX
   padding: 1rem 1.5rem;
-  border-radius: 8px; // Added border radius
+  //border-radius: 8px; // Added border radius
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); // Added shadow
   animation: fadeInUp 0.3s ease;
 }

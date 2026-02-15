@@ -498,7 +498,7 @@ export default function AuthPage () {
           width: 100%;
           max-width: 440px;
           background: white;
-          // border-radius: 16px;
+          // //border-radius: 16px;
           padding: 32px;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
           text-align: center;
@@ -529,7 +529,7 @@ export default function AuthPage () {
           width: 100%;
           padding: 14px 16px;
           border: 2px solid #e5e7eb;
-          // border-radius: 10px;
+          // //border-radius: 10px;
           margin-bottom: 12px;
           font-size: 15px;
           transition: all 0.2s ease;
@@ -557,7 +557,7 @@ export default function AuthPage () {
           justify-content: center;
           gap: 8px;
           padding: 12px 20px;
-          // border-radius: 10px;
+          // //border-radius: 10px;
           border: none;
           cursor: pointer;
           font-weight: 600;
@@ -673,7 +673,7 @@ export default function AuthPage () {
 
           .login-box {
             padding: 24px 20px;
-            // border-radius: 12px;
+            // //border-radius: 12px;
           }
 
           .logo {

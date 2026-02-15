@@ -4,7 +4,6 @@
   line-height: 1.6;
   font-size: 0.95rem;
   color: #333;
-  width: 70vw;
   max-height: 80vh; // keeps it inside viewport
   margin: 0 auto; // center on screen
 
@@ -62,7 +61,7 @@
   }
   &::-webkit-scrollbar-thumb {
     background: #ccc;
-    border-radius: 10px;
+    //border-radius: 10px;
   }
 
   /* =========================

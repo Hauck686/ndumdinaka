@@ -63,9 +63,9 @@ export default function Sidebar ({ isOpen, onClose }) {
     { href: '/admin/customers', label: 'Customers' },
     { href: '/admin/product-upload', label: 'Products Upload' },
     { href: '/admin/products', label: 'Products' },
-    { href: '/admin/orders', label: 'Orders' },
-    { href: '/admin/user-measurement', label: 'Measurement' },
-    { href: '/admin/waiting-list', label: 'Waiting List' }
+    { href: '/admin/orders', label: 'Orders' }
+    // { href: '/admin/user-measurement', label: 'Measurement' },
+    // { href: '/admin/waiting-list', label: 'Waiting List' }
   ]
 
   const mainLinks = isAdmin ? adminLinks : userLinks
@@ -91,7 +91,7 @@ export default function Sidebar ({ isOpen, onClose }) {
         { action: handleLogout, label: 'Log out' }
       ]
     : [
-        { href: '/user/user-profile', label: 'Profile' },
+        // { href: '/user/user-profile', label: 'Profile' },
         { action: handleLogout, label: 'Log out' }
       ]
 

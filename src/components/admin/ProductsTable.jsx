@@ -36,11 +36,6 @@ export default function ProductsTable () {
   async function fetchProducts () {
     setLoading(true)
     try {
-      // If your backend supports server-side pagination, you can pass page & limit here.
-      // Example:
-      // const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/products?page=${currentPage}&limit=${pageSize}`)
-      // setProducts(res.data.items || res.data)
-
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/products`
       )
@@ -52,7 +47,7 @@ export default function ProductsTable () {
     }
   }
 
-  // Filter by search (client-side). If using server-side search, call API instead.
+  // Filter by search (client-side)
   const filteredProducts = products.filter(p =>
     String(p.name || '')
       .toLowerCase()
@@ -145,7 +140,6 @@ export default function ProductsTable () {
   }
 
   function renderPageNumbers () {
-    // show window of pages around current page
     const windowSize = 5
     const pages = []
     let start = Math.max(1, currentPage - Math.floor(windowSize / 2))
@@ -205,16 +199,12 @@ export default function ProductsTable () {
             />
           </div>
 
-          <div
-            className='pagination-controls'
-            style={{ display: 'flex', gap: 8, alignItems: 'center' }}
-          >
+          <div className='pagination-controls'>
             <label>
               Show
               <select
                 value={pageSize}
                 onChange={e => setPageSize(Number(e.target.value))}
-                style={{ margin: '0 8px' }}
               >
                 {pageSizeOptions.map(opt => (
                   <option key={opt} value={opt}>
@@ -225,10 +215,7 @@ export default function ProductsTable () {
               /page
             </label>
 
-            <div
-              className='page-nav'
-              style={{ display: 'flex', gap: 6, alignItems: 'center' }}
-            >
+            <div className='page-nav'>
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -257,118 +244,106 @@ export default function ProductsTable () {
         </div>
       </div>
 
-      {/* Table */}
-      <table className='products__table'>
-        <thead>
-          <tr>
-            <th>
-              <input
-                type='checkbox'
-                onChange={e => toggleSelectPage(e.target.checked)}
-                checked={
-                  paginatedProducts.length > 0 &&
-                  paginatedProducts.every(p => selected.includes(p._id))
-                }
-              />
-            </th>
-            <th>Product Name/SKU</th>
-            <th>Created At</th>
-            <th>Brand</th>
-            <th>Category</th>
-            <th>Available Quantity</th>
-            <th>Status</th>
-            <th>Price</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedProducts.length === 0 ? (
+      {/* TABLE WRAPPER WITH SCROLL */}
+      <div className='table-wrapper'>
+        {/* Table */}
+        <table className='products__table'>
+          <thead>
             <tr>
-              <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
-                No products found.
-              </td>
+              <th>
+                <input
+                  type='checkbox'
+                  onChange={e => toggleSelectPage(e.target.checked)}
+                  checked={
+                    paginatedProducts.length > 0 &&
+                    paginatedProducts.every(p => selected.includes(p._id))
+                  }
+                />
+              </th>
+              <th>Product Name/SKU</th>
+              <th>Created At</th>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>Available Quantity</th>
+              <th>Status</th>
+              <th>Price</th>
+              <th>Action</th>
             </tr>
-          ) : (
-            paginatedProducts.map(p => (
-              <tr key={p._id}>
-                <td>
-                  <input
-                    type='checkbox'
-                    checked={selected.includes(p._id)}
-                    onChange={() => toggleSelect(p._id)}
-                  />
-                </td>
-                <td className='product-info'>
-                  <img
-                    src={p.images?.[0] || '/products/default.png'}
-                    alt={p.name}
-                    style={{
-                      width: 56,
-                      height: 56,
-                      objectFit: 'cover',
-                      marginRight: 10
-                    }}
-                  />
-                  <div>
-                    <strong>{p.name}</strong>
-                    <div style={{ fontSize: 12, color: '#666' }}>
-                      {String(p._id).slice(-6).toUpperCase()}
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  {p.createdAt
-                    ? new Date(p.createdAt).toLocaleDateString()
-                    : '—'}
-                </td>
-
-                <td>
-                  {p.brand
-                    ? p.brand.slice(0, 45) + (p.brand.length > 45 ? '...' : '')
-                    : '—'}
-                </td>
-                <td>{p.category || '—'}</td>
-                <td>
-                  {p.quantity !== undefined
-                    ? Number(p.quantity).toLocaleString()
-                    : '—'}
-                </td>
-                <td>
-                  <span
-                    className={`status ${
-                      p.quantity > 0 ? 'active' : 'inactive'
-                    }`}
-                  >
-                    {p.quantity > 0 ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td>${p.price}</td>
-                <td className='actions'>
-                  <button className='edit' onClick={() => startEdit(p)}>
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    className='delete'
-                    onClick={() => deleteProduct(p._id)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+          </thead>
+          <tbody>
+            {paginatedProducts.length === 0 ? (
+              <tr>
+                <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
+                  No products found.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              paginatedProducts.map(p => (
+                <tr key={p._id}>
+                  <td>
+                    <input
+                      type='checkbox'
+                      checked={selected.includes(p._id)}
+                      onChange={() => toggleSelect(p._id)}
+                    />
+                  </td>
+                  <td className='product-info'>
+                    <img
+                      src={p.images?.[0] || '/products/default.png'}
+                      alt={p.name}
+                    />
+                    <div>
+                      <strong>{p.name}</strong>
+                      <span>{String(p._id).slice(-6).toUpperCase()}</span>
+                    </div>
+                  </td>
+                  <td>
+                    {p.createdAt
+                      ? new Date(p.createdAt).toLocaleDateString()
+                      : '—'}
+                  </td>
+                  <td>
+                    {p.brand
+                      ? p.brand.slice(0, 45) +
+                        (p.brand.length > 45 ? '...' : '')
+                      : '—'}
+                  </td>
+                  <td>{p.category || '—'}</td>
+                  <td>
+                    {p.quantity !== undefined
+                      ? Number(p.quantity).toLocaleString()
+                      : '—'}
+                  </td>
+                  <td>
+                    <span
+                      className={`status ${
+                        p.quantity > 0 ? 'active' : 'inactive'
+                      }`}
+                    >
+                      {p.quantity > 0 ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className='price'>${p.price}</td>
+                  <td className='actions'>
+                    <button className='edit' onClick={() => startEdit(p)}>
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      className='delete'
+                      onClick={() => deleteProduct(p._id)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination footer summary */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: 12,
-          alignItems: 'center'
-        }}
-      >
+      <div className='pagination-footer'>
         <div>
           Showing {startIdx + 1}–{Math.min(endIdx, totalItems)} of {totalItems}{' '}
           products
