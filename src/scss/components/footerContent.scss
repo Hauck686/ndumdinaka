@@ -8,14 +8,29 @@ $radius: 10px;
   color: #111;
   background: #fff;
   margin: 2rem;
+  max-width: 900px;
+  align-content: center;
 }
 
 .content-container {
-  max-width: $content-max-width;
+  max-width: 900px;
+  margin: 0 auto; // ✅ Center container
   padding: $spacing;
-
+  width: 100%;
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: $spacing * 0.8;
+  }
+
+  @media (max-width: 480px) {
+    padding: $spacing * 0.5;
+  }
 }
+
+// ============================================================
+// CONTENT HEADER
+// ============================================================
 
 .content-header {
   margin-bottom: 18px;

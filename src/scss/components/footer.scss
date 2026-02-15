@@ -39,24 +39,26 @@
       color: #000;
       text-transform: none;
     }
-    .footer-links {
-      margin-top: 0.6rem;
-      list-style: none;
-      padding: 0;
-      li {
-        margin: 0.3rem 0;
-        a {
+  }
+
+  .footer-links {
+    margin-top: 0.6rem;
+    list-style: none;
+    padding: 0;
+    li {
+      margin: 0.3rem 0;
+      a {
+        color: #000;
+        font-size: 0.6rem !important;
+        text-decoration: none;
+        transition: color 0.2s;
+        &:hover {
           color: #000;
-          font-size: 0.6rem;
-          text-decoration: none;
-          transition: color 0.2s;
-          &:hover {
-            color: #000;
-          }
         }
       }
     }
   }
+
   .footer-sublinks {
     margin-left: 1rem;
     margin-top: -1.5rem;
