@@ -1,5 +1,5 @@
 'use client'
-import { CircleUser } from 'lucide-react'
+import { CircleUser, LogOut, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import axios from 'axios'
@@ -49,7 +49,7 @@ export default function Sidebar ({ isOpen, onClose }) {
     fetchUser()
   }, [userId, token])
 
-  // detect role by checking current path
+  // Detect role by checking current path
   const isAdmin = pathname.startsWith('/admin')
 
   const userLinks = [
@@ -66,9 +66,6 @@ export default function Sidebar ({ isOpen, onClose }) {
     { href: '/admin/orders', label: 'Orders' },
     { href: '/admin/user-measurement', label: 'Measurement' },
     { href: '/admin/waiting-list', label: 'Waiting List' }
-    // { href: '/admin/sales', label: 'Sales' },
-    // { href: '/admin/payments', label: 'Payments' },
-    // { href: '/admin/shipping', label: 'Shipping' }
   ]
 
   const mainLinks = isAdmin ? adminLinks : userLinks
@@ -78,8 +75,9 @@ export default function Sidebar ({ isOpen, onClose }) {
       localStorage.removeItem('token')
       localStorage.removeItem('userId')
       localStorage.removeItem('authToken')
+      localStorage.removeItem('email')
     }
-    router.push('/auth/login') // redirect to login
+    router.push('/auth/login')
     onClose?.()
   }
 
@@ -94,54 +92,96 @@ export default function Sidebar ({ isOpen, onClose }) {
       ]
     : [
         { href: '/user/user-profile', label: 'Profile' },
-        // { href: '/user/settings', label: 'Settings' },
         { action: handleLogout, label: 'Log out' }
       ]
+
+  // Check if link is active
+  const isLinkActive = href =>
+    pathname === href || pathname.startsWith(href + '/')
 
   return (
     <>
       {/* Overlay */}
       <div
-        className={`overlay ${isOpen ? 'show' : ''}`}
+        className={`sidebar-overlay ${isOpen ? 'open' : ''}`}
         onClick={onClose}
+        role='presentation'
       ></div>
 
       {/* Sidebar */}
-      <div className={`user-sidebar ${isOpen ? 'open' : ''}`}>
-        <div className='user-sidebar__header'>
-          <CircleUser />
-          <span className='user-sidebar__email'>
-            {loading
-              ? 'Loading...'
-              : error
-              ? 'Super Admin'
-              : email || (user ? user.email : 'No Email')}
-          </span>
+      <aside className={`modern-sidebar ${isOpen ? 'open' : ''}`}>
+        {/* Header */}
+        <div className='sidebar-header'>
+          <div className='sidebar-user-info'>
+            <div className='sidebar-avatar'>
+              <CircleUser size={24} />
+            </div>
+            <div className='sidebar-user-details'>
+              <p className='sidebar-user-label'>
+                {loading ? 'Loading...' : error ? 'Super Admin' : 'User'}
+              </p>
+              <p className='sidebar-user-email'>
+                {loading
+                  ? 'Loading...'
+                  : error
+                  ? 'Super Admin'
+                  : email || (user ? user.email : 'No Email')}
+              </p>
+            </div>
+          </div>
+          <button
+            className='sidebar-close-btn'
+            onClick={onClose}
+            aria-label='Close sidebar'
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <hr className='divider' />
+        {/* Divider */}
+        <div className='sidebar-divider'></div>
 
-        <ul className='user-sidebar__links'>
-          {mainLinks.map((link, idx) => (
-            <li key={idx}>
-              <a href={link.href} onClick={onClose}>
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        {/* Main Navigation */}
+        <nav className='sidebar-nav'>
+          <ul className='sidebar-links'>
+            {mainLinks.map((link, idx) => (
+              <li key={idx}>
+                <a
+                  href={link.href}
+                  onClick={onClose}
+                  className={`sidebar-link ${
+                    isLinkActive(link.href) ? 'active' : ''
+                  }`}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        <div className='user-sidebar__footer'>
-          <hr className='divider' />
-          <ul className='user-sidebar__links'>
+        {/* Footer Section */}
+        <div className='sidebar-footer'>
+          <div className='sidebar-divider'></div>
+          <ul className='sidebar-links'>
             {footerLinks.map((link, idx) => (
               <li key={idx}>
                 {link.action ? (
-                  <button onClick={link.action} className='logout-btn'>
+                  <button
+                    onClick={link.action}
+                    className='sidebar-link sidebar-logout-btn'
+                  >
+                    <LogOut size={16} />
                     {link.label}
                   </button>
                 ) : (
-                  <a href={link.href} onClick={onClose}>
+                  <a
+                    href={link.href}
+                    onClick={onClose}
+                    className={`sidebar-link ${
+                      isLinkActive(link.href) ? 'active' : ''
+                    }`}
+                  >
                     {link.label}
                   </a>
                 )}
@@ -149,7 +189,7 @@ export default function Sidebar ({ isOpen, onClose }) {
             ))}
           </ul>
         </div>
-      </div>
+      </aside>
     </>
   )
 }

@@ -1,25 +1,21 @@
 'use client'
 
-import CustomersList from '@/components/admin/Customerlist'
 import DashboardHeader from '@/components/admin/DashboardHeader'
-import FeaturedItems from '@/components/admin/FeaturedItems'
-import InsightCard from '@/components/admin/InsightCard'
+import Customerlist from '@/components/admin/Customerlist'
+import React from 'react'
 
-import React, { useState } from 'react'
-
+/**
+ * Dashboard Page Component
+ * Main admin dashboard with stats and customers list
+ */
 export default function Dashboard () {
-  const [activeTab, setActiveTab] = useState('Last weeks')
   return (
     <div className='dashboard'>
+      {/* Stats Section */}
       <DashboardHeader />
-      <CustomersList />
-      {/* <div className='section-two'>
-        <InsightCard />
-        <FeaturedItems />
-      </div> */}
-      {/* <main className='dashboard-main'>
-        <div className='dashboard-controls'></div>
-      </main> */}
+
+      {/* Customers Section */}
+      <Customerlist />
     </div>
   )
 }

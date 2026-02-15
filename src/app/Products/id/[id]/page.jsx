@@ -700,7 +700,7 @@ export default function ProductDetailsPage () {
                     className='accordion-title size'
                     onClick={() => toggleDropdown('size')}
                   >
-                    <span>SIZE</span>
+                    <span>Size</span>
                   </div>
                   <AnimatePresence>
                     {openDropdown === 'size' && (
