@@ -1,26 +1,26 @@
 /* ============================================================
-   MODERN SIDEBAR & HEADER STYLING - FIXED
-   Responsive, accessible, production-ready
+   MODERN SIDEBAR & HEADER - WHITE & BLACK THEME
+   Clean, minimal, professional design
    ============================================================ */
 
 :root {
-  /* Colors - Sophisticated Palette */
-  --color-primary: #0a0e27;
-  --color-secondary: #1a2347;
-  --color-tertiary: #2d3e5f;
-  --color-accent: #3b82f6;
-  --color-accent-light: #60a5fa;
-  --color-accent-dark: #1d4ed8;
-  --color-text: #1a1a2e;
-  --color-text-muted: #6b7280;
-  --color-text-light: #f3f4f6;
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-bg-tertiary: #f3f4f6;
-  --color-border: #e5e7eb;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  /* Colors - Monochromatic Palette */
+  --color-primary: #000000; /* Pure black */
+  --color-secondary: #1a1a1a; /* Dark gray */
+  --color-tertiary: #333333; /* Medium gray */
+  --color-accent: #000000; /* Black accent */
+  --color-accent-light: #666666; /* Light gray */
+  --color-accent-dark: #000000; /* Dark black */
+  --color-text: #1a1a1a; /* Dark text */
+  --color-text-muted: #666666; /* Gray text */
+  --color-text-light: #ffffff; /* White text */
+  --color-bg: #ffffff; /* Pure white */
+  --color-bg-secondary: #f5f5f5; /* Off-white */
+  --color-bg-tertiary: #eeeeee; /* Light gray */
+  --color-border: #d0d0d0; /* Gray border */
+  --color-success: #000000; /* Black */
+  --color-warning: #333333; /* Dark gray */
+  --color-danger: #1a1a1a; /* Dark gray */
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -40,6 +40,9 @@
   --sidebar-z-index: 99;
   --overlay-z-index: 98;
 
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -53,14 +56,37 @@
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -82,15 +108,14 @@
 }
 
 /* ============================================================
-   HEADER / TOP NAVIGATION - FIXED
+   HEADER / TOP NAVIGATION
    ============================================================ */
 
 .modern-top-nav {
-  position: fixed; /* CHANGED: was absolute - now fixed */
-  width: 82%;
+  position: fixed;
   top: 0;
-  // left: 0;
   right: 0;
+  left: var(--sidebar-width);
   height: var(--header-height);
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
@@ -98,8 +123,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-xl);
-  z-index: 0;
+  z-index: var(--header-z-index);
   box-shadow: var(--shadow-sm);
+
+  @media (max-width: 768px) {
+    left: 0;
+  }
 }
 
 /* Left Section */
@@ -129,7 +158,7 @@
 
   &:hover {
     background-color: var(--color-bg-tertiary);
-    color: var(--color-accent);
+    color: var(--color-primary);
   }
 
   svg {
@@ -205,7 +234,7 @@
 
   &:hover {
     background-color: var(--color-bg-tertiary);
-    color: var(--color-accent);
+    color: var(--color-text);
   }
 
   svg {
@@ -217,7 +246,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  background-color: var(--color-danger);
+  background-color: var(--color-primary);
   color: white;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
@@ -271,17 +300,13 @@
   top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-secondary) 100%
-  );
+  background: var(--color-primary);
   color: var(--color-text-light);
   z-index: var(--sidebar-z-index);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-xl);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-lg);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
   transition: transform var(--transition-base);
 
   @media (max-width: 768px) {
@@ -317,11 +342,11 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent-light);
+  color: rgba(255, 255, 255, 0.7);
   flex-shrink: 0;
 }
 
@@ -395,11 +420,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
     border-radius: 3px;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.25);
     }
   }
 }
@@ -437,13 +462,13 @@
   position: relative;
 
   &:hover {
-    background: rgba(59, 130, 244, 0.1);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--color-text-light);
   }
 
   &.active {
-    background: rgba(59, 130, 244, 0.15);
-    color: var(--color-accent-light);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-text-light);
 
     &::after {
       content: '';
@@ -453,7 +478,7 @@
       transform: translateY(-50%);
       width: 3px;
       height: 20px;
-      background: var(--color-accent);
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 3px 0 0 3px;
     }
   }
@@ -461,15 +486,11 @@
 
 .sidebar-logout-btn {
   gap: var(--space-md);
-  color: rgba(255, 119, 119, 1);
+  color: rgba(255, 255, 255, 0.7);
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(239, 68, 68, 0.2),
-      rgba(220, 38, 38, 0.1)
-    );
-    color: rgba(255, 165, 165, 1);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-text-light);
   }
 
   svg {
@@ -511,7 +532,7 @@ main {
 @media (max-width: 768px) {
   .modern-top-nav {
     padding: 0 var(--space-lg);
-    width: 100%;
+    left: 0;
   }
 
   .nav-left {

@@ -14,6 +14,8 @@ export default function Dashboard () {
       {/* Stats Section */}
       <DashboardHeader />
 
+      <div style={{ marginTop: '10px' }}></div>
+
       {/* Customers Section */}
       <Customerlist />
     </div>
