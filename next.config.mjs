@@ -1,6 +1,7 @@
 // next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: false, // Disable Turbopack for development
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {

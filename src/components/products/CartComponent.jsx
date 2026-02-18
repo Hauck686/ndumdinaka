@@ -14,7 +14,6 @@ import OrderSuccessfulPopup from '../OrderSuccessfulPopup'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
-// Enhanced Checkout Form with Address Collection - SINGLE PAGE
 function EnhancedCheckoutForm ({
   clientSecret,
   onSuccess,
@@ -30,7 +29,6 @@ function EnhancedCheckoutForm ({
   const [error, setError] = useState(null)
   const [paymentRequest, setPaymentRequest] = useState(null)
 
-  // Shipping form state
   const [shippingData, setShippingData] = useState({
     firstName: '',
     lastName: '',
@@ -44,7 +42,7 @@ function EnhancedCheckoutForm ({
     country: 'United States'
   })
 
-  // Load saved address if available (only for logged-in users)
+  // Load saved address
   useEffect(() => {
     const loadUserProfile = async () => {
       if (userId && token && !isGuest) {
@@ -53,7 +51,6 @@ function EnhancedCheckoutForm ({
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/profile`
           )
 
-          // Load from addresses array if exists
           if (res.data.addresses && res.data.addresses.length > 0) {
             const primaryAddress = res.data.addresses[0]
             const [firstName, ...lastNameParts] = (
@@ -74,7 +71,6 @@ function EnhancedCheckoutForm ({
               email: res.data.email || prev.email
             }))
           } else {
-            // Load basic info
             setShippingData(prev => ({
               ...prev,
               firstName: res.data.firstName || '',
@@ -90,7 +86,6 @@ function EnhancedCheckoutForm ({
     loadUserProfile()
   }, [userId, token, isGuest])
 
-  // Initialize Payment Request for Google Pay and Apple Pay
   useEffect(() => {
     if (!stripe) return
 
@@ -117,15 +112,12 @@ function EnhancedCheckoutForm ({
       ]
     })
 
-    // Check if payment request is available
     pr.canMakePayment().then(result => {
       if (result) {
         setPaymentRequest(pr)
 
-        // Handle payment request
         pr.on('paymentmethod', async event => {
           try {
-            // Confirm payment with Stripe
             const { error: stripeError, paymentIntent } =
               await stripe.confirmCardPayment(clientSecret, {
                 payment_method: event.paymentMethod.id
@@ -137,11 +129,9 @@ function EnhancedCheckoutForm ({
               return
             }
 
-            // Extract shipping info from payment request
             const shippingAddress = event.shippingAddress
             const payerName = event.payerName?.split(' ') || ['', '']
 
-            // Complete order on backend
             const response = await axios.post(
               `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
               {
@@ -173,6 +163,7 @@ function EnhancedCheckoutForm ({
               localStorage.setItem('token', response.data.newUserData.token)
             }
 
+            // PASS FULL ORDER DATA to success handler
             onSuccess(paymentIntent, response.data)
           } catch (err) {
             event.complete('fail')
@@ -205,7 +196,6 @@ function EnhancedCheckoutForm ({
       }
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(shippingData.email)) {
       setError('Please enter a valid email address')
@@ -221,7 +211,6 @@ function EnhancedCheckoutForm ({
 
     if (!stripe || !elements) return
 
-    // Validate shipping first
     if (!validateShipping()) {
       return
     }
@@ -232,7 +221,6 @@ function EnhancedCheckoutForm ({
     try {
       const cardElement = elements.getElement(CardElement)
 
-      // Confirm payment with shipping details
       const { error: stripeError, paymentIntent } =
         await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
@@ -271,7 +259,6 @@ function EnhancedCheckoutForm ({
         return
       }
 
-      // Payment succeeded - now complete the order on backend
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/complete-order`,
         {
@@ -286,12 +273,12 @@ function EnhancedCheckoutForm ({
 
       console.log('✅ Order completed successfully')
 
-      // If guest checkout, store new user credentials
       if (isGuest && response.data.newUserData) {
         localStorage.setItem('userId', response.data.newUserData.userId)
         localStorage.setItem('token', response.data.newUserData.token)
       }
 
+      // PASS FULL ORDER DATA
       onSuccess(paymentIntent, response.data)
     } catch (err) {
       console.error('Payment error:', err)
@@ -301,10 +288,8 @@ function EnhancedCheckoutForm ({
     }
   }
 
-  // Single Page Checkout Form - All sections visible
   return (
     <form className='checkout-form payment-form' onSubmit={handlePaymentSubmit}>
-      {/* CONTACT SECTION */}
       <div className='form-section'>
         <h3 className='section-title'>Contact</h3>
         <input
@@ -318,7 +303,6 @@ function EnhancedCheckoutForm ({
         />
       </div>
 
-      {/* SHIPPING INFORMATION SECTION */}
       <div className='form-section'>
         <h3 className='section-title'>Shipping Information</h3>
 
@@ -403,7 +387,6 @@ function EnhancedCheckoutForm ({
         />
       </div>
 
-      {/* PAYMENT SECTION */}
       <div className='form-section'>
         <h3 className='section-title'>Payment</h3>
         <p className='secure-text'>
@@ -444,7 +427,6 @@ function EnhancedCheckoutForm ({
             />
           </div>
 
-          {/* Google Pay and Apple Pay Button */}
           {paymentRequest && (
             <div style={{ marginTop: '20px' }}>
               <div
@@ -484,7 +466,10 @@ function EnhancedCheckoutForm ({
   )
 }
 
-// Main Cart Component
+// ════════════════════════════════════════════════════════════════════════════
+// 🔥 MAIN CART COMPONENT - UPDATED
+// ════════════════════════════════════════════════════════════════════════════
+
 export default function CartComponent ({ onClose }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -494,7 +479,13 @@ export default function CartComponent ({ onClose }) {
   const [clientSecret, setClientSecret] = useState(null)
   const [isGuest, setIsGuest] = useState(true)
 
-  // Load from localStorage
+  // ✨ NEW: Order success state
+  const [orderSuccess, setOrderSuccess] = useState({
+    isOpen: false,
+    orderId: null,
+    orderData: null
+  })
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedUserId = localStorage.getItem('userId')
@@ -506,7 +497,6 @@ export default function CartComponent ({ onClose }) {
     }
   }, [])
 
-  // Fetch cart
   const fetchCart = async (uid, tok, isGuestUser) => {
     setLoading(true)
     try {
@@ -543,7 +533,6 @@ export default function CartComponent ({ onClose }) {
     init()
   }, [])
 
-  // Remove item
   const removeItem = async idx => {
     const item = items[idx]
     const updated = items.filter((_, i) => i !== idx)
@@ -581,32 +570,12 @@ export default function CartComponent ({ onClose }) {
     }
   }
 
-  // Merge guest cart to user
-  const mergeGuestCartToUser = async (uid, tok) => {
-    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
-    if (guestCart.length > 0) {
-      try {
-        for (const item of guestCart) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cart/add-cart`,
-            { ...item, userId: uid },
-            { headers: { Authorization: `Bearer ${tok}` } }
-          )
-        }
-        localStorage.removeItem('guestCart')
-      } catch (err) {
-        console.error('Failed to merge guest cart:', err)
-      }
-    }
-  }
-
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   )
   const isEmpty = items.length === 0
 
-  // Initiate checkout
   const initiateCheckout = async (uid, tok, isGuestCheckout) => {
     try {
       const payloadItems = items.map(item => ({
@@ -640,14 +609,53 @@ export default function CartComponent ({ onClose }) {
     }
   }
 
-  // Handle checkout button
   const handleCheckout = async () => {
     if (items.length === 0) return
-
     await initiateCheckout(userId, token, isGuest)
   }
 
-  // Render measurement summary
+  // ✨ NEW: Handle successful order
+  const handleOrderSuccess = (paymentIntent, orderData) => {
+    console.log('Order successful:', {
+      paymentIntent,
+      orderData,
+      items
+    })
+
+    // Calculate totals
+    const subtotalAmount = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
+    const shippingCost = orderData.shippingCost || 10
+    const taxAmount = orderData.tax || 0
+    const totalAmount = paymentIntent.amount / 100
+
+    // Show success popup
+    setOrderSuccess({
+      isOpen: true,
+      orderId:
+        orderData.orderId || orderData._id || paymentIntent.id.substring(0, 20),
+      orderData: {
+        items: items,
+        subtotal: subtotalAmount,
+        shippingCost: shippingCost,
+        tax: taxAmount,
+        total: totalAmount,
+        shippingAddress: orderData.shippingAddress || {}
+      }
+    })
+
+    // Clear checkout form
+    setClientSecret(null)
+
+    // Clear cart data
+    if (isGuest) {
+      localStorage.removeItem('guestCart')
+    }
+    setItems([])
+  }
+
   const renderMeasurementSummary = measurementObj => {
     if (!measurementObj) return null
     try {
@@ -680,8 +688,9 @@ export default function CartComponent ({ onClose }) {
   return (
     <div className='cart-overlay'>
       <div className='backdrop' onClick={onClose}></div>
+
       <div className='cart-panel'>
-        {!loading && isEmpty ? (
+        {!loading && isEmpty && !clientSecret && !orderSuccess.isOpen ? (
           <div className='empty-cart'>
             <p>No Order yet</p>
             <button className='continue-shopping-btn' onClick={onClose}>
@@ -690,7 +699,7 @@ export default function CartComponent ({ onClose }) {
           </div>
         ) : (
           <>
-            {!clientSecret && (
+            {!clientSecret && !orderSuccess.isOpen && (
               <div className='cart-items'>
                 <div className='cart-header-inline'>
                   <span className='cart-count'>Cart ({items.length})</span>
@@ -742,7 +751,7 @@ export default function CartComponent ({ onClose }) {
             )}
 
             <div className='cart-footer'>
-              {!clientSecret && (
+              {!clientSecret && !orderSuccess.isOpen && (
                 <>
                   <div className='subtotal'>
                     <span>Subtotal</span>
@@ -755,7 +764,7 @@ export default function CartComponent ({ onClose }) {
                 </>
               )}
 
-              {clientSecret && (
+              {clientSecret && !orderSuccess.isOpen && (
                 <Elements stripe={stripePromise}>
                   <EnhancedCheckoutForm
                     clientSecret={clientSecret}
@@ -763,24 +772,32 @@ export default function CartComponent ({ onClose }) {
                     token={token}
                     items={items}
                     isGuest={isGuest}
-                    onSuccess={(pi, orderData) => {
-                      setClientSecret(null)
-                      if (isGuest) {
-                        localStorage.removeItem('guestCart')
-                      }
-                      ;<OrderSuccessfulPopup
-                        isGuest={isGuest}
-                        isOpen={true}
-                        onClose={onClose}
-                      />
-
-                      onClose()
-                    }}
+                    onSuccess={handleOrderSuccess}
                   />
                 </Elements>
               )}
             </div>
           </>
+        )}
+
+        {/* ✨ NEW: Professional Order Receipt Popup */}
+        {orderSuccess.isOpen && (
+          <OrderSuccessfulPopup
+            isOpen={orderSuccess.isOpen}
+            onClose={() => {
+              setOrderSuccess({ isOpen: false, orderId: null, orderData: null })
+              onClose()
+            }}
+            orderId={orderSuccess.orderId}
+            isGuest={isGuest}
+            items={orderSuccess.orderData?.items || []}
+            shippingAddress={orderSuccess.orderData?.shippingAddress || {}}
+            total={orderSuccess.orderData?.total || 0}
+            subtotal={orderSuccess.orderData?.subtotal || 0}
+            shippingCost={orderSuccess.orderData?.shippingCost || 10}
+            tax={orderSuccess.orderData?.tax || 0}
+            brandName='NAKACHI NDUMDI'
+          />
         )}
       </div>
     </div>
