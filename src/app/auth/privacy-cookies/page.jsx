@@ -13,12 +13,12 @@ export default function PoliciesPage () {
 
   return (
     <div className='policies-page'>
-      <h5>POLICIES</h5>
+      <h5>Policies</h5>
 
       <div className='policy-section'>
         <div className='policy-header' onClick={() => handleToggle('privacy')}>
-          PRIVACY POLICY
-          <span>{activePolicy === 'privacy' ? '▲' : '▼'}</span>
+          Privacy policy
+          <span>{activePolicy === 'privacy' ? '-' : '+'}</span>
         </div>
         {activePolicy === 'privacy' && (
           <div className='policy-content'>
@@ -29,8 +29,8 @@ export default function PoliciesPage () {
 
       <div className='policy-section'>
         <div className='policy-header' onClick={() => handleToggle('cookies')}>
-          COOKIE POLICY
-          <span>{activePolicy === 'cookies' ? '▲' : '▼'}</span>
+          Cookie policy
+          <span>{activePolicy === 'cookies' ? '-' : '+'}</span>
         </div>
         {activePolicy === 'cookies' && (
           <div className='policy-content'>

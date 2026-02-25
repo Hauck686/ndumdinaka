@@ -15,7 +15,7 @@ export default function page () {
       <ContentPage
         title=''
         content={ethosContent}
-        footer='© 2025 NDUMDI NAKACHI — All rights reserved.'
+        footer={`©${new Date().getFullYear()} NAKACHI NDUMDI. All rights reserved.`}
       />
     </div>
   )

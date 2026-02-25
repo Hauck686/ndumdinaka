@@ -45,7 +45,7 @@ export default function ShippingReturnsPolicy () {
       <ContentPage
         title='Shipping & Returns Policy'
         content={shippingReturnsContent}
-        footer='© 2025 NAKACHI NDUMDI LLC — All rights reserved.'
+        footer={`©${new Date().getFullYear()} NAKACHI NDUMDI. All rights reserved.`}
       />
     </div>
   )

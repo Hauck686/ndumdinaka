@@ -81,7 +81,7 @@ Email: support@nakachindumdi.com`
         content={privacyContent.map((section, index) => (
           <p key={index} dangerouslySetInnerHTML={{ __html: section }} />
         ))}
-        footer='© 2025 NAKACHI NDUMDI LLC — All rights reserved.'
+        footer={`©${new Date().getFullYear()} NAKACHI NDUMDI. All rights reserved.`}
       />
     </div>
   )

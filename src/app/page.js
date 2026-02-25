@@ -113,7 +113,7 @@ const ComingSoon = () => {
         </div>
 
         <footer className='coming-soon__footer'>
-          <p>&copy; 2026 Nakachi Ndumdi. All rights reserved.</p>
+          <p>{`©${new Date().getFullYear()} NAKACHI NDUMDI. All rights reserved.`}</p>
         </footer>
       </div>
 

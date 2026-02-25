@@ -67,8 +67,11 @@ export default function CategoryPage () {
   }
 
   return (
-    <div className='galleryGrid-two'>
-      {renderContent()} <NewsletterComp />
+    <div>
+      <div className='galleryGrid-two'>{renderContent()}</div>
+      <div>
+        <NewsletterComp />
+      </div>
     </div>
   )
 }

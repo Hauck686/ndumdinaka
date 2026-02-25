@@ -871,8 +871,7 @@ export default function ProductDetailsPage () {
                   style={{
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.8',
-
-                    fontSize: '14px'
+                    fontSize: '11px'
                   }}
                 >
                   {product.description}
