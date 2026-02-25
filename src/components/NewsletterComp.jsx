@@ -81,7 +81,7 @@ export default function NewsletterComp () {
           </div>
 
           <button type='submit' className='submitBtn' disabled={loading}>
-            {loading ? 'SIGNING UP...' : 'SUBMIT'}
+            {loading ? 'Signing up...' : 'Submit'}
           </button>
 
           {message && <p className='status-message'>{message}</p>}

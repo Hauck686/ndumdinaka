@@ -29,7 +29,7 @@
   right: 12px;
   font-size: 11px;
   color: #999;
-  text-transform: uppercase;
+  text-transform: inherit;
   letter-spacing: 0.5px;
 }
 
@@ -71,7 +71,7 @@
   letter-spacing: 4px;
   color: white;
   margin: 0 0 20px;
-  text-transform: uppercase;
+  text-transform: inherit;
 }
 
 .receipt-nav {
@@ -84,7 +84,7 @@
 .receipt-nav a {
   font-size: 12px;
   letter-spacing: 1px;
-  text-transform: uppercase;
+  text-transform: inherit;
   color: #ccc;
   text-decoration: none;
   transition: color 0.3s;
@@ -101,13 +101,13 @@
 }
 
 .greeting-text {
-  font-size: 14px;
+  font-size: 0.6rem;
   color: #666;
   margin: 0 0 10px;
 }
 
 .greeting-message {
-  font-size: 14px;
+  font-size: 0.6rem;
   color: #666;
   margin: 0 0 8px;
 }
@@ -132,7 +132,7 @@
 
 .order-label {
   font-size: 11px;
-  text-transform: uppercase;
+  text-transform: inherit;
   letter-spacing: 1px;
   color: #999;
   margin: 0 0 10px;
@@ -314,9 +314,9 @@
 }
 
 .shipping-title {
-  font-size: 14px;
+  font-size: 0.6rem;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: inherit;
   letter-spacing: 1px;
   margin: 0 0 15px;
   color: #000;
@@ -348,7 +348,7 @@
   margin: 0 0 10px;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: inherit;
   letter-spacing: 0.5px;
 }
 
@@ -371,7 +371,7 @@
   font-size: 13px;
   font-weight: 600;
   color: #0066cc;
-  text-transform: uppercase;
+  text-transform: inherit;
 }
 
 .receipt-guest-note p {
@@ -425,7 +425,7 @@
   border-radius: 4px;
   font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: inherit;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.3s;

@@ -130,7 +130,7 @@ export default function Footer () {
   const item = {
     label: `<br />
   NAKACHI NDUMDI, a Division of NAKACHI NDUMDI<br />
- Limited Liability Company.
+  Limited Liability Company.
   Head Office: 6900 Lenox Village Dr, Apt. 575, Nashville,
    Tennessee 37211, USA.`,
     href: '#'
@@ -169,8 +169,11 @@ export default function Footer () {
         <FooterSection
           title='Customer care'
           links={[
-            { label: 'Email: support@nakachi.com', href: '/auth/contact-us' },
-            { label: 'Call: +1 123-456-7890', href: '/auth/faq' }
+            {
+              label: 'Email: support@nakachi.com',
+              href: 'mailto:support@nakachi.com'
+            },
+            { label: 'Call: +1 123-456-7890', href: 'tel:+11234567890' }
           ]}
           section='legal'
           onLinkClick={handleLinkClick}
