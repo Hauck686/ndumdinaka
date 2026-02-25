@@ -50,7 +50,11 @@ export default function CategoryPage () {
     }
 
     if (products.length === 0) {
-      return <p>No products found in {decodeURIComponent(category)}</p>
+      return (
+        <div style={{ height: '50vh', alignItems: 'center' }}>
+          <p>No products found in {decodeURIComponent(category)}</p>
+        </div>
+      )
     }
 
     return products.map(product => (
@@ -58,7 +62,6 @@ export default function CategoryPage () {
         key={product._id}
         id={product._id}
         img1={product.images[0]}
-        // img2={product.images[1] || product.images[0]}
         quantity={product.quantity}
         title={product.name}
         price={`$${product.price}`}

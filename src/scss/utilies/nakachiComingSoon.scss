@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 // Variables
 $primary-color: #ffffff;
 $secondary-color: #e6e6e6;
@@ -263,8 +265,8 @@ $accent-gold: #444444;
 
     @for $i from 1 through 20 {
       &:nth-child(#{$i}) {
-        left: random(100) * 1%;
-        animation-delay: random(5) * 1s;
+        left: math.random(100) * 1%;
+        animation-delay: math.random(5) * 1s;
       }
     }
   }

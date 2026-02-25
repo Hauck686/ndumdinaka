@@ -750,6 +750,27 @@ export default function CartComponent ({ onClose }) {
               </div>
             )}
 
+            {clientSecret && !orderSuccess.isOpen && (
+              <div className='cart-items'>
+                <div className='cart-header-inline'>
+                  <span className='cart-count'>Checkout</span>
+                  <button className='close-cart-btn' onClick={() => setClientSecret(null)}>
+                    ✕
+                  </button>
+                </div>
+                <Elements stripe={stripePromise}>
+                  <EnhancedCheckoutForm
+                    clientSecret={clientSecret}
+                    userId={userId}
+                    token={token}
+                    items={items}
+                    isGuest={isGuest}
+                    onSuccess={handleOrderSuccess}
+                  />
+                </Elements>
+              </div>
+            )}
+
             <div className='cart-footer'>
               {!clientSecret && !orderSuccess.isOpen && (
                 <>
@@ -762,19 +783,6 @@ export default function CartComponent ({ onClose }) {
                     Checkout
                   </button>
                 </>
-              )}
-
-              {clientSecret && !orderSuccess.isOpen && (
-                <Elements stripe={stripePromise}>
-                  <EnhancedCheckoutForm
-                    clientSecret={clientSecret}
-                    userId={userId}
-                    token={token}
-                    items={items}
-                    isGuest={isGuest}
-                    onSuccess={handleOrderSuccess}
-                  />
-                </Elements>
               )}
             </div>
           </>
